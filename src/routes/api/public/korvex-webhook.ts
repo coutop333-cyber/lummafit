@@ -2,7 +2,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 import { supabaseAdmin } from '@/integrations/supabase/client.server';
 import { sendUtmifyOrder } from '@/lib/utmify.server';
-import { sendOrderApprovedEmail } from '@/lib/email/sendOrderApprovedEmail.server';
 import { sendAndLogMetaCapiPurchase } from '@/lib/meta-capi.server';
 
 // POST /api/public/korvex-webhook
@@ -192,20 +191,6 @@ export const Route = createFileRoute('/api/public/korvex-webhook')({
           .maybeSingle();
         const orderFull = fullOrder || order;
 
-        // ===== Rastreio automático =====
-        try {
-          const codigo = String(order.external_reference || '').trim();
-          if (codigo) {
-            await supabaseAdmin
-              .from('rastreios' as any)
-              .upsert(
-                { codigo_pedido: codigo, status: 'Pagamento aprovado', observacao: '' } as any,
-                { onConflict: 'codigo_pedido', ignoreDuplicates: true },
-              );
-          }
-        } catch (err) {
-          console.error('[korvex-webhook][rastreio]', err);
-        }
 
         // ===== UTMify =====
         try {
@@ -263,32 +248,6 @@ export const Route = createFileRoute('/api/public/korvex-webhook')({
         }
 
         // ===== Email aprovado =====
-        try {
-          const tp = (order as any).tracking_payload || {};
-          const customerEmail: string | undefined = tp.email;
-          const customerName: string | undefined = tp.name || tp.nome || '';
-
-          if (!(order as any).order_email_sent_at && customerEmail) {
-            const { data: claimed, error: claimErr } = await supabaseAdmin
-              .from('orders')
-              .update({ order_email_sent_at: new Date().toISOString() } as any)
-              .eq('id', order.id)
-              .is('order_email_sent_at', null)
-              .select('id')
-              .maybeSingle();
-
-            if (!claimErr && claimed) {
-              await sendOrderApprovedEmail({
-                nomeCliente: String(customerName || ''),
-                emailCliente: String(customerEmail),
-                codigoPedido: String(order.external_reference || order.id),
-                linkRastreio: `https://copadasfigurinhas.com/rastreio/${order.external_reference}`,
-              });
-            }
-          }
-        } catch (err) {
-          console.error('[korvex-webhook][email]', err);
-        }
 
         return new Response(
           JSON.stringify({

@@ -8,8 +8,6 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
-import CountdownBanner from "@/components/CountdownBanner";
-
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -74,17 +72,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Eletros Jundiaí - Airfryer com até 60% OFF" },
-      { name: "description", content: "Eletros Jundiaí - Airfryer Philips Walita 4,1L com frete grátis e até 60% OFF. Compra 100% segura." },
-      { property: "og:title", content: "Eletros Jundiaí - Airfryer com até 60% OFF" },
-      { property: "og:description", content: "Eletros Jundiaí - Airfryer Philips Walita 4,1L com frete grátis e até 60% OFF. Compra 100% segura." },
+      { title: "Lumma FIT · Calça Flare Legging Bailarina Cintura Alta" },
+      { name: "description", content: "Calça Flare Legging Bailarina Cintura Alta Lumma FIT. Modela, valoriza e conquista. Frete grátis · Pix aprovado na hora." },
+      { property: "og:title", content: "Lumma FIT · Calça Flare Legging Bailarina" },
+      { property: "og:description", content: "Modela, valoriza e conquista. Frete grátis · Pix aprovado na hora." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@eletrojundiai" },
-      { name: "twitter:title", content: "Eletros Jundiaí - Airfryer com até 60% OFF" },
-      { name: "twitter:description", content: "Eletros Jundiaí - Airfryer Philips Walita 4,1L com frete grátis e até 60% OFF. Compra 100% segura." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c92b6cad-045b-42af-8758-e75452b6d249/id-preview-fced9c47--1584a065-9678-47bb-a280-0d71d0e12f2a.lovable.app-1779224051376.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c92b6cad-045b-42af-8758-e75452b6d249/id-preview-fced9c47--1584a065-9678-47bb-a280-0d71d0e12f2a.lovable.app-1779224051376.png" },
     ],
     links: [
       {

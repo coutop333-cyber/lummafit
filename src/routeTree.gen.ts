@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ObrigadoRouteImport } from './routes/obrigado'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as RastreioCodigoRouteImport } from './routes/rastreio.$codigo'
 import { Route as ApiPublicPedidoStatusRouteImport } from './routes/api/public/pedido-status'
 import { Route as ApiPublicKorvexWebhookRouteImport } from './routes/api/public/korvex-webhook'
 
@@ -23,11 +22,6 @@ const ObrigadoRoute = ObrigadoRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RastreioCodigoRoute = RastreioCodigoRouteImport.update({
-  id: '/rastreio/$codigo',
-  path: '/rastreio/$codigo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicPedidoStatusRoute = ApiPublicPedidoStatusRouteImport.update({
@@ -44,14 +38,12 @@ const ApiPublicKorvexWebhookRoute = ApiPublicKorvexWebhookRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
-  '/rastreio/$codigo': typeof RastreioCodigoRoute
   '/api/public/korvex-webhook': typeof ApiPublicKorvexWebhookRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
-  '/rastreio/$codigo': typeof RastreioCodigoRoute
   '/api/public/korvex-webhook': typeof ApiPublicKorvexWebhookRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
 }
@@ -59,7 +51,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
-  '/rastreio/$codigo': typeof RastreioCodigoRoute
   '/api/public/korvex-webhook': typeof ApiPublicKorvexWebhookRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
 }
@@ -68,21 +59,18 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/obrigado'
-    | '/rastreio/$codigo'
     | '/api/public/korvex-webhook'
     | '/api/public/pedido-status'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/obrigado'
-    | '/rastreio/$codigo'
     | '/api/public/korvex-webhook'
     | '/api/public/pedido-status'
   id:
     | '__root__'
     | '/'
     | '/obrigado'
-    | '/rastreio/$codigo'
     | '/api/public/korvex-webhook'
     | '/api/public/pedido-status'
   fileRoutesById: FileRoutesById
@@ -90,7 +78,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ObrigadoRoute: typeof ObrigadoRoute
-  RastreioCodigoRoute: typeof RastreioCodigoRoute
   ApiPublicKorvexWebhookRoute: typeof ApiPublicKorvexWebhookRoute
   ApiPublicPedidoStatusRoute: typeof ApiPublicPedidoStatusRoute
 }
@@ -109,13 +96,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rastreio/$codigo': {
-      id: '/rastreio/$codigo'
-      path: '/rastreio/$codigo'
-      fullPath: '/rastreio/$codigo'
-      preLoaderRoute: typeof RastreioCodigoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/pedido-status': {
@@ -138,7 +118,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ObrigadoRoute: ObrigadoRoute,
-  RastreioCodigoRoute: RastreioCodigoRoute,
   ApiPublicKorvexWebhookRoute: ApiPublicKorvexWebhookRoute,
   ApiPublicPedidoStatusRoute: ApiPublicPedidoStatusRoute,
 }
