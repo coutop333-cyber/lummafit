@@ -179,9 +179,14 @@ function LummaFitPage() {
       eventIdRef.current = eventId;
       const tracking = captureTracking();
       const fd = formDataRef.current || {};
+      const isTest = (window as any).__lumma_test_mode === true;
+      if (isTest) delete (window as any).__lumma_test_mode;
       const payment = await createPixPayment({
         data: {
-          kitId: PRODUTO.id, title: PRODUTO.quantity, unitPrice: PRODUTO.preco, externalReference: eventId,
+          kitId: isTest ? 99 : PRODUTO.id,
+          title: isTest ? '1 CALÇA TESTE LUMMA FIT' : PRODUTO.quantity,
+          unitPrice: isTest ? 5.00 : PRODUTO.preco,
+          externalReference: eventId,
           payerEmail: fd.email, payerName: fd.nome, payerPhone: fd.telefone, payerDocument: fd.cpf,
           tracking: { ...tracking, ...(fd.nome ? { name: fd.nome } : {}), ...(fd.email ? { email: fd.email } : {}), ...(fd.telefone ? { phone: fd.telefone } : {}) } as any,
           source: 'produto5' as any,
@@ -619,6 +624,41 @@ function LummaFitPage() {
         <p className="font-black text-lg mb-1" style={{ color: ROSA }}>Lumma FIT</p>
         <p>© 2026 Lumma FIT · Moda Feminina · Compra 100% segura</p>
       </footer>
+
+      {/* COMPRA TESTE — oculto no final */}
+      <div className="max-w-5xl mx-auto px-4 pb-6">
+        <details className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+          <summary className="px-4 py-3 text-xs text-gray-400 cursor-pointer select-none list-none flex items-center justify-between hover:text-gray-500">
+            <span>Compra teste</span>
+            <ChevronDown className="w-3.5 h-3.5" />
+          </summary>
+          <div className="px-4 pb-4 pt-2 border-t border-gray-200 bg-white">
+            <p className="text-xs text-gray-500 mb-3">Gera um Pix real de R$ 5,00 para testar o fluxo completo.</p>
+            <Button
+              disabled={generating}
+              onClick={() => {
+                if (!selectedTamanho) setSelectedTamanho('M');
+                void warmPixProxy();
+                setReviewProduct({
+                  image: imgPreta,
+                  title: '1 CALÇA TESTE LUMMA FIT',
+                  variation: 'Teste · R$ 5,00',
+                  quantity: 1,
+                  unitPrice: 5.00,
+                  price: 5.00,
+                });
+                // override kit para teste
+                (window as any).__lumma_test_mode = true;
+                setFormOpen(true);
+              }}
+              variant="outline"
+              className="text-xs h-8 px-4 border-gray-300 text-gray-600"
+            >
+              {generating ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Gerar Pix de R$ 5,00'}
+            </Button>
+          </div>
+        </details>
+      </div>
 
       {/* MOBILE CTA FIXO */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 shadow-[0_-8px_30px_rgba(214,51,132,0.25)]">
