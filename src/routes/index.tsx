@@ -114,7 +114,7 @@ function LummaFitPage() {
   const COR2 = CORES.find(c => c.id === selectedCor2Id) ?? CORES[1];
 
   // Imagem exibida no hero
-  const heroImg = PRODUTO.qtdCores === 4 ? leging4 : COR.img;
+  const heroImg = COR.img;
 
   const [timeLeft, setTimeLeft] = useState(20 * 60);
   useEffect(() => {
