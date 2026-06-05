@@ -105,7 +105,7 @@ function LummaFitPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewProduct, setReviewProduct] = useState<OrderProduct | null>(null);
-  const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(true);
   const formDataRef = useRef<any>(null);
   const eventIdRef = useRef<string | null>(null);
 
