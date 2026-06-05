@@ -201,20 +201,28 @@ function LummaFitPage() {
     navigate({ to: '/obrigado', search: { ref: p.external_reference, id: String(p.id), value: p.transaction_amount, product: PRODUTO.nome, status: 'approved' }, replace: true });
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
+  // Altura da barra de urgência em px (usada para calcular o top do header)
+  const URGENCY_H = 40;
 
-      {/* TOPO */}
-      <div className="sticky top-0 z-50 py-2.5 px-4 text-center text-sm font-bold text-white" style={{ background: `linear-gradient(90deg, ${ROSA_ESCURO}, ${ROSA}, ${ROSA_ESCURO})` }}>
-        <span className="flex items-center justify-center gap-2 flex-wrap">
-          <Flame className="w-4 h-4" style={{ color: '#fde68a' }} />
-          Frete Grátis · Envio em 24h · Pix aprovado na hora
-          <span className="flex items-center gap-1 ml-2" style={{ color: '#fde68a' }}><Clock className="w-3.5 h-3.5" /> {mm}:{ss}</span>
-        </span>
+  return (
+    <div className="min-h-screen bg-white">
+
+      {/* BARRA DE URGÊNCIA — sticky top-0 */}
+      <div className="sticky top-0 z-50 text-white" style={{ background: `linear-gradient(90deg, #8b0036, ${ROSA}, #8b0036)` }}>
+        <div className="py-2 px-4 text-center">
+          <span className="flex items-center justify-center gap-3 flex-wrap text-sm font-black uppercase tracking-wide">
+            <Flame className="w-4 h-4 animate-pulse shrink-0" style={{ color: '#fde68a' }} />
+            <span>⚠️ Oferta expira em</span>
+            <span className="inline-flex items-center gap-1.5 font-black text-base px-3 py-0.5 rounded-lg" style={{ backgroundColor: '#fde68a', color: '#8b0036', fontFamily: 'Archivo Black, sans-serif' }}>
+              <Clock className="w-4 h-4" /> {mm}:{ss}
+            </span>
+            <span className="hidden sm:inline">· Frete Grátis · Pix na hora</span>
+          </span>
+        </div>
       </div>
 
-      {/* HEADER */}
-      <header className="bg-white border-b-2 sticky top-[44px] z-40" style={{ borderColor: ROSA }}>
+      {/* HEADER — colado logo abaixo da barra */}
+      <header className="bg-white border-b-2 sticky z-40" style={{ borderColor: ROSA, top: `${URGENCY_H}px` }}>
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-2xl font-black" style={{ fontFamily: 'Archivo Black, sans-serif', color: PRETO }}>
             Lumma <span style={{ color: ROSA }}>FIT</span>
@@ -230,18 +238,23 @@ function LummaFitPage() {
 
       <main className="max-w-5xl mx-auto px-4 py-6">
 
-        {/* HEADLINE */}
-        <div className="text-center mb-8">
+        {/* HEADLINE AGRESSIVO */}
+        <div className="text-center mb-6">
+          {/* Prova social no topo */}
+          <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-3 text-xs font-bold" style={{ backgroundColor: `${ROSA}15`, color: ROSA, border: `1px solid ${ROSA}30` }}>
+            <div className="flex">{[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />)}</div>
+            4.9 · +1.847 clientes satisfeitas
+          </div>
           <h1 className="text-3xl md:text-5xl font-black leading-tight mb-3" style={{ fontFamily: 'Archivo Black, sans-serif', color: PRETO }}>
-            A calça que vai transformar
-            <span className="block" style={{ color: ROSA }}> seu look e sua confiança</span>
+            A calça que faz todas
+            <span className="block" style={{ color: ROSA }}>perguntarem onde comprou</span>
           </h1>
-          <p className="text-gray-600 text-lg max-w-xl mx-auto">
-            <strong>Flare Legging Bailarina Cintura Alta</strong> — modela, define e valoriza cada curva. Conforto e estilo o dia todo.
+          <p className="text-gray-600 text-base max-w-lg mx-auto">
+            Flare Legging Bailarina Cintura Alta — modela, afina a cintura e alonga as pernas. <strong>Menos de R$17 por peça</strong> no kit completo.
           </p>
-          <div className="flex items-center justify-center gap-2 mt-4">
-            <div className="flex">{[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />)}</div>
-            <span className="font-bold text-gray-800">4.9 · <span className="font-normal text-gray-500">1.847 avaliações</span></span>
+          {/* Urgência inline */}
+          <div className="inline-flex items-center gap-2 mt-4 rounded-xl px-4 py-2 text-sm font-bold text-white" style={{ backgroundColor: ROSA }}>
+            <AlertTriangle className="w-4 h-4" /> Apenas {unitsLeft} unidades restantes hoje
           </div>
         </div>
 
@@ -560,29 +573,34 @@ function LummaFitPage() {
         <p>© 2026 Lumma FIT · Moda Feminina · Compra 100% segura</p>
       </footer>
 
-      {/* MOBILE CTA */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-white border-t-2 shadow-[0_-6px_20px_rgba(0,0,0,0.12)] z-50" style={{ borderColor: ROSA }}>
-        <div className="flex items-center justify-between mb-2 px-1">
-          <div>
-            <span className="text-[10px] font-black uppercase flex items-center gap-1" style={{ color: ROSA }}>
-              <Flame className="w-3 h-3" /> {PRODUTO.descricao} · frete grátis
-            </span>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-xs text-gray-400 line-through">R$ {PRODUTO.precoAntigo.toFixed(2).replace('.', ',')}</span>
-              <span className="text-xl font-black" style={{ color: ROSA, fontFamily: 'Archivo Black, sans-serif' }}>R$ {PRODUTO.preco.toFixed(2).replace('.', ',')}</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded text-white" style={{ backgroundColor: ROSA }}>-{PRODUTO.desconto}%</span>
+      {/* MOBILE CTA FIXO */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 shadow-[0_-8px_30px_rgba(214,51,132,0.25)]">
+        {/* Barra de urgência no topo do CTA */}
+        <div className="py-1.5 px-4 text-center text-[11px] font-black uppercase text-white flex items-center justify-center gap-2" style={{ backgroundColor: '#8b0036' }}>
+          <Flame className="w-3 h-3 animate-pulse" style={{ color: '#fde68a' }} />
+          <span>⏰ Expira em <strong style={{ color: '#fde68a' }}>{mm}:{ss}</strong> · só {unitsLeft} unidades</span>
+        </div>
+        <div className="bg-white border-t-2 p-3" style={{ borderColor: ROSA }}>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="text-[10px] font-black uppercase" style={{ color: ROSA }}>{PRODUTO.descricao}</p>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-xs text-gray-400 line-through">R$ {PRODUTO.precoAntigo.toFixed(2).replace('.', ',')}</span>
+                <span className="text-2xl font-black" style={{ color: ROSA, fontFamily: 'Archivo Black, sans-serif' }}>R$ {PRODUTO.preco.toFixed(2).replace('.', ',')}</span>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded text-white" style={{ backgroundColor: ROSA }}>-{PRODUTO.desconto}%</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-[9px] text-gray-500">Frete grátis</p>
+              <p className="text-[9px] text-gray-500">Envio em 24h</p>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-[10px] font-black tabular-nums" style={{ color: ROSA }}>{mm}:{ss}</span>
-            <p className="text-[9px] text-gray-500">termina em</p>
-          </div>
+          <Button disabled={generating} onClick={() => handleBuyClick()}
+            className="w-full py-5 text-base font-black uppercase text-white active:scale-[0.98]"
+            style={{ background: `linear-gradient(135deg, ${ROSA}, ${ROSA_ESCURO})`, fontFamily: 'Archivo Black, sans-serif', boxShadow: `0 4px 20px ${ROSA}55` }}>
+            {generating ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Gerando Pix...</> : '💳 GARANTIR MINHA CALÇA AGORA'}
+          </Button>
         </div>
-        <Button disabled={generating} onClick={() => handleBuyClick()}
-          className="w-full py-5 text-base font-black uppercase text-white active:scale-[0.98]"
-          style={{ background: `linear-gradient(135deg, ${ROSA}, ${ROSA_ESCURO})`, fontFamily: 'Archivo Black, sans-serif' }}>
-          {generating ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /></> : '💳 QUERO MINHA CALÇA AGORA'}
-        </Button>
       </div>
 
       <CheckoutForm open={formOpen} onOpenChange={setFormOpen} onConfirm={handleFormConfirm}
