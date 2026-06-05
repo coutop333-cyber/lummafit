@@ -12,21 +12,20 @@ import type { PixPaymentInfo } from '@/components/PixCheckoutDialog';
 import { OrderReviewDialog, type OrderProduct } from '@/components/OrderReviewDialog';
 import pixLogo from '@/assets/pix-logo.png';
 
-// Fotos das calças (leging1=azul, leging2=verde, leging3=cinza, leging4=preta — ajuste se necessário)
-import leging1 from '@/assets/leging1.webp';
-import leging2 from '@/assets/leging2.webp';
-import leging3 from '@/assets/leging3.webp';
-import leging4 from '@/assets/leging4.webp';
+import imgAzul from '@/assets/azul.webp';
+import imgVerde from '@/assets/verde.webp';
+import imgCinza from '@/assets/cinza.webp';
+import imgPreta from '@/assets/preta.webp';
 
 const ROSA = '#d63384';
 const ROSA_ESCURO = '#b02a6e';
 const PRETO = '#111111';
 
 const CORES = [
-  { id: 'azul',   label: 'Azul Marinho', hex: '#1e3a6e', img: leging1 },
-  { id: 'verde',  label: 'Verde',        hex: '#3d6b5e', img: leging2 },
-  { id: 'cinza',  label: 'Cinza',        hex: '#7a7a7a', img: leging3 },
-  { id: 'preta',  label: 'Preta',        hex: '#111111', img: leging4 },
+  { id: 'preta', label: 'Preta',        hex: '#111111', img: imgPreta },
+  { id: 'azul',  label: 'Azul Marinho', hex: '#1e3a6e', img: imgAzul  },
+  { id: 'verde', label: 'Verde',        hex: '#3d6b5e', img: imgVerde },
+  { id: 'cinza', label: 'Cinza',        hex: '#7a7a7a', img: imgCinza },
 ];
 
 const TAMANHOS = ['P', 'M', 'G', 'GG'];
@@ -98,7 +97,7 @@ export const Route = createFileRoute('/')({
 function LummaFitPage() {
   const [selectedProdutoId, setSelectedProdutoId] = useState(3);
   // cor principal (1 calça e preview)
-  const [selectedCorId, setSelectedCorId] = useState('azul');
+  const [selectedCorId, setSelectedCorId] = useState('preta');
   // segunda cor (apenas para kit de 2)
   const [selectedCor2Id, setSelectedCor2Id] = useState('verde');
   const [selectedTamanho, setSelectedTamanho] = useState('');
@@ -206,7 +205,7 @@ function LummaFitPage() {
     <div className="min-h-screen bg-gray-50">
 
       {/* TOPO */}
-      <div className="py-2.5 px-4 text-center text-sm font-bold text-white" style={{ background: `linear-gradient(90deg, ${ROSA_ESCURO}, ${ROSA}, ${ROSA_ESCURO})` }}>
+      <div className="sticky top-0 z-50 py-2.5 px-4 text-center text-sm font-bold text-white" style={{ background: `linear-gradient(90deg, ${ROSA_ESCURO}, ${ROSA}, ${ROSA_ESCURO})` }}>
         <span className="flex items-center justify-center gap-2 flex-wrap">
           <Flame className="w-4 h-4" style={{ color: '#fde68a' }} />
           Frete Grátis · Envio em 24h · Pix aprovado na hora
@@ -215,7 +214,7 @@ function LummaFitPage() {
       </div>
 
       {/* HEADER */}
-      <header className="bg-white border-b-2 sticky top-[44px] z-50" style={{ borderColor: ROSA }}>
+      <header className="bg-white border-b-2 sticky top-[44px] z-40" style={{ borderColor: ROSA }}>
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-2xl font-black" style={{ fontFamily: 'Archivo Black, sans-serif', color: PRETO }}>
             Lumma <span style={{ color: ROSA }}>FIT</span>
