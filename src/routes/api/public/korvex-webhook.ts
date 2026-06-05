@@ -95,15 +95,25 @@ export const Route = createFileRoute('/api/public/korvex-webhook')({
           refQs,
         });
 
-        // Identificar o transactionId
+        // Extrair campos do payload real da Korvex
+        // A Korvex envia: transaction.id e trackProps.externalReference
+        const body = json as any;
         const transactionId =
-          parsed.data.transactionId ||
-          parsed.data.transaction_id ||
-          parsed.data.id ||
+          body?.transaction?.id ||
+          body?.transactionId ||
+          body?.transaction_id ||
+          body?.id ||
+          '';
+        const externalRef =
+          body?.trackProps?.externalReference ||
+          body?.metadata?.externalReference ||
+          refQs ||
           '';
 
-        if (!transactionId && !refQs) {
-          console.warn('[korvex-webhook] sem transactionId nem ref');
+        console.log('[KORVEX_WEBHOOK_IDS]', { transactionId, externalRef });
+
+        if (!transactionId && !externalRef) {
+          console.warn('[korvex-webhook] sem transactionId nem externalRef');
           return new Response(JSON.stringify({ error: 'missing transactionId' }), { status: 400, headers: cors });
         }
 
@@ -115,10 +125,19 @@ export const Route = createFileRoute('/api/public/korvex-webhook')({
           );
         }
 
-        // Localizar pedido por transactionId (efi_txid) ou external_reference
+        // Localizar pedido: primeiro por external_reference (mais confiável), depois por efi_txid
         let order: any = null;
 
-        if (transactionId) {
+        if (externalRef) {
+          const { data, error } = await supabaseAdmin
+            .from('orders')
+            .select('id, status, amount, external_reference, efi_status, approved_at, tracking_payload, order_email_sent_at')
+            .eq('external_reference', externalRef)
+            .maybeSingle();
+          if (!error) order = data;
+        }
+
+        if (!order && transactionId) {
           const { data, error } = await supabaseAdmin
             .from('orders')
             .select('id, status, amount, external_reference, efi_status, approved_at, tracking_payload, order_email_sent_at')
@@ -127,21 +146,8 @@ export const Route = createFileRoute('/api/public/korvex-webhook')({
           if (!error) order = data;
         }
 
-        // Fallback por external_reference do metadata ou query string
         if (!order) {
-          const extRef = parsed.data.metadata?.externalReference || refQs;
-          if (extRef) {
-            const { data, error } = await supabaseAdmin
-              .from('orders')
-              .select('id, status, amount, external_reference, efi_status, approved_at, tracking_payload, order_email_sent_at')
-              .eq('external_reference', extRef)
-              .maybeSingle();
-            if (!error) order = data;
-          }
-        }
-
-        if (!order) {
-          console.warn('[korvex-webhook] pedido não encontrado', { transactionId, refQs });
+          console.warn('[korvex-webhook] pedido não encontrado', { transactionId, externalRef });
           return new Response(
             JSON.stringify({ error: 'order not found', transactionId }),
             { status: 404, headers: cors },
