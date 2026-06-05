@@ -165,7 +165,7 @@ export const createKorvexPixPayment = createServerFn({ method: 'POST' })
       client: {
         name: (data.payerName || tracking.name || 'Cliente').slice(0, 100),
         email: data.payerEmail || tracking.email || undefined,
-        phone: rawPhone || undefined,
+        phone: rawPhone || '(00) 00000-0000', // Korvex exige phone obrigatório
         document: cpfFormatted || undefined,
       },
       products: [
