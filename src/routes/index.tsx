@@ -272,9 +272,9 @@ function LummaFitPage() {
               />
             </div>
 
-            {/* Miniaturas de cor */}
+            {/* Miniaturas de cor — visível só no desktop */}
             {PRODUTO.qtdCores !== 4 && (
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <div className="hidden lg:block bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">
                   {PRODUTO.qtdCores === 2 ? 'Cor 1:' : 'Cor:'} <span style={{ color: ROSA }}>{COR.label}</span>
                 </p>
@@ -290,9 +290,9 @@ function LummaFitPage() {
               </div>
             )}
 
-            {/* Segunda cor (apenas kit 2) */}
+            {/* Segunda cor — visível só no desktop */}
             {PRODUTO.qtdCores === 2 && (
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <div className="hidden lg:block bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">
                   Cor 2: <span style={{ color: ROSA }}>{COR2.label}</span>
                 </p>
@@ -308,9 +308,9 @@ function LummaFitPage() {
               </div>
             )}
 
-            {/* Kit 4 — mostra todas as cores */}
+            {/* Kit 4 — visível só no desktop */}
             {PRODUTO.qtdCores === 4 && (
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <div className="hidden lg:block bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">Kit inclui as 4 cores:</p>
                 <div className="flex gap-3">
                   {CORES.map((cor) => (
@@ -415,6 +415,53 @@ function LummaFitPage() {
                 </div>
               )}
             </div>
+
+            {/* CORES — visível só no mobile, após o tamanho */}
+            {PRODUTO.qtdCores !== 4 && (
+              <div className="lg:hidden bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">
+                  {PRODUTO.qtdCores === 2 ? 'Cor 1:' : 'Cor:'} <span style={{ color: ROSA }}>{COR.label}</span>
+                </p>
+                <div className="flex gap-3">
+                  {CORES.map((cor) => (
+                    <button key={cor.id} onClick={() => setSelectedCorId(cor.id)} className="flex flex-col items-center gap-1.5">
+                      <img src={cor.img} alt={cor.label} className="w-14 h-14 object-cover object-top rounded-lg border-2 transition-all"
+                        style={{ borderColor: selectedCorId === cor.id ? ROSA : '#e5e7eb', boxShadow: selectedCorId === cor.id ? `0 0 0 2px ${ROSA}` : 'none' }} />
+                      <span className="text-[9px] font-semibold text-gray-600">{cor.label.split(' ')[0]}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {PRODUTO.qtdCores === 2 && (
+              <div className="lg:hidden bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">
+                  Cor 2: <span style={{ color: ROSA }}>{COR2.label}</span>
+                </p>
+                <div className="flex gap-3">
+                  {CORES.map((cor) => (
+                    <button key={cor.id} onClick={() => setSelectedCor2Id(cor.id)} className="flex flex-col items-center gap-1.5">
+                      <img src={cor.img} alt={cor.label} className="w-14 h-14 object-cover object-top rounded-lg border-2 transition-all"
+                        style={{ borderColor: selectedCor2Id === cor.id ? ROSA : '#e5e7eb', boxShadow: selectedCor2Id === cor.id ? `0 0 0 2px ${ROSA}` : 'none' }} />
+                      <span className="text-[9px] font-semibold text-gray-600">{cor.label.split(' ')[0]}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {PRODUTO.qtdCores === 4 && (
+              <div className="lg:hidden bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">Kit inclui as 4 cores:</p>
+                <div className="flex gap-3">
+                  {CORES.map((cor) => (
+                    <div key={cor.id} className="flex flex-col items-center gap-1.5">
+                      <img src={cor.img} alt={cor.label} className="w-14 h-14 object-cover object-top rounded-lg border border-gray-200" />
+                      <span className="text-[9px] font-semibold text-gray-600">{cor.label.split(' ')[0]}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* PREÇO */}
             <div className="rounded-2xl p-5 text-white" style={{ background: `linear-gradient(135deg, ${ROSA}, ${ROSA_ESCURO})` }}>
