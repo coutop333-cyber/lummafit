@@ -12,23 +12,29 @@ import type { PixPaymentInfo } from '@/components/PixCheckoutDialog';
 import { OrderReviewDialog, type OrderProduct } from '@/components/OrderReviewDialog';
 import pixLogo from '@/assets/pix-logo.png';
 
+// Fotos das calças (leging1=azul, leging2=verde, leging3=cinza, leging4=preta — ajuste se necessário)
+import leging1 from '@/assets/leging1.webp';
+import leging2 from '@/assets/leging2.webp';
+import leging3 from '@/assets/leging3.webp';
+import leging4 from '@/assets/leging4.webp';
+
 const ROSA = '#d63384';
 const ROSA_ESCURO = '#b02a6e';
 const PRETO = '#111111';
 
 const CORES = [
-  { id: 'preta', label: 'Preta', hex: '#111111' },
-  { id: 'azul', label: 'Azul Marinho', hex: '#1e3a6e' },
-  { id: 'verde', label: 'Verde', hex: '#3d6b5e' },
-  { id: 'cinza', label: 'Cinza', hex: '#7a7a7a' },
+  { id: 'azul',   label: 'Azul Marinho', hex: '#1e3a6e', img: leging1 },
+  { id: 'verde',  label: 'Verde',        hex: '#3d6b5e', img: leging2 },
+  { id: 'cinza',  label: 'Cinza',        hex: '#7a7a7a', img: leging3 },
+  { id: 'preta',  label: 'Preta',        hex: '#111111', img: leging4 },
 ];
 
 const TAMANHOS = ['P', 'M', 'G', 'GG'];
 
 const MEDIDAS = [
-  { t: 'P', c: '28,5', q: '35', comp: '101' },
-  { t: 'M', c: '30,5', q: '37', comp: '101' },
-  { t: 'G', c: '32,5', q: '39', comp: '101' },
+  { t: 'P',  c: '28,5', q: '35', comp: '101' },
+  { t: 'M',  c: '30,5', q: '37', comp: '101' },
+  { t: 'G',  c: '32,5', q: '39', comp: '101' },
   { t: 'GG', c: '34,5', q: '41', comp: '101' },
 ];
 
@@ -42,17 +48,19 @@ const PRODUTOS = [
     desconto: 63,
     contentId: 'lummafit-1calca',
     quantity: '1 CALÇA FLARE LEGGING BAILARINA CINTURA ALTA LUMMA FIT',
+    qtdCores: 1,
   },
   {
     id: 2,
     nome: '2 Calças Flare Bailarina',
-    descricao: '2 calças · escolha as cores',
+    descricao: '2 calças · escolha 2 cores diferentes',
     preco: 39.90,
     precoAntigo: 159.80,
     desconto: 75,
     contentId: 'lummafit-2calcas',
     quantity: '2 CALÇAS FLARE LEGGING BAILARINA CINTURA ALTA LUMMA FIT',
     badge: 'Popular',
+    qtdCores: 2,
   },
   {
     id: 3,
@@ -64,16 +72,17 @@ const PRODUTOS = [
     contentId: 'lummafit-kit4',
     quantity: 'KIT 4 CALÇAS FLARE LEGGING BAILARINA CINTURA ALTA LUMMA FIT',
     badge: '⭐ Mais vendido',
+    qtdCores: 4,
   },
 ];
 
 const REVIEWS = [
-  { name: 'Camila R.', city: 'São Paulo · SP', rating: 5, text: 'Simplesmente PERFEITA! Cintura alta que define o corpo, flare lindo. Já pedi mais duas cores!', ago: '2 dias' },
-  { name: 'Fernanda M.', city: 'Rio · RJ', rating: 5, text: 'Comprei o kit das 4 cores e não me arrependo. A qualidade é incrível e valoriza muito o corpo.', ago: '1 dia' },
-  { name: 'Juliana S.', city: 'BH · MG', rating: 5, text: 'Modelagem impecável, achei meu tamanho G perfeito. O tecido é grosso e não aparece nada!', ago: '3 dias' },
-  { name: 'Patrícia L.', city: 'Curitiba · PR', rating: 5, text: 'Chegou super rápido e bem embalado. Durável, não desbota. Adorei!', ago: '5 horas' },
-  { name: 'Bruna O.', city: 'Fortaleza · CE', rating: 5, text: 'Já é a segunda compra. Durável, não desbota e fica ótima tanto no dia a dia quanto na academia.', ago: '12 horas' },
-  { name: 'Larissa T.', city: 'Porto Alegre · RS', rating: 5, text: 'Presentei minha mãe e ela adorou! O Kit 4 cores valeu muito a pena. Recomendo demais!', ago: '1 dia' },
+  { name: 'Camila R.',   city: 'São Paulo · SP', rating: 5, text: 'Simplesmente PERFEITA! Cintura alta que define o corpo, flare lindo. Já pedi mais duas cores!', ago: '2 dias' },
+  { name: 'Fernanda M.', city: 'Rio · RJ',        rating: 5, text: 'Comprei o kit das 4 cores e não me arrependo. A qualidade é incrível e valoriza muito o corpo.', ago: '1 dia' },
+  { name: 'Juliana S.',  city: 'BH · MG',         rating: 5, text: 'Modelagem impecável, achei meu tamanho G perfeito. O tecido é grosso e não aparece nada!', ago: '3 dias' },
+  { name: 'Patrícia L.', city: 'Curitiba · PR',   rating: 5, text: 'Chegou super rápido e bem embalado. Durável, não desbota. Adorei!', ago: '5 horas' },
+  { name: 'Bruna O.',    city: 'Fortaleza · CE',  rating: 5, text: 'Já é a segunda compra. Durável e fica ótima tanto no dia a dia quanto na academia.', ago: '12 horas' },
+  { name: 'Larissa T.',  city: 'Porto Alegre · RS', rating: 5, text: 'Presentei minha mãe e ela adorou! O Kit 4 cores valeu muito a pena. Recomendo demais!', ago: '1 dia' },
 ];
 
 export const Route = createFileRoute('/')({
@@ -88,7 +97,10 @@ export const Route = createFileRoute('/')({
 
 function LummaFitPage() {
   const [selectedProdutoId, setSelectedProdutoId] = useState(3);
-  const [selectedCorId, setSelectedCorId] = useState('preta');
+  // cor principal (1 calça e preview)
+  const [selectedCorId, setSelectedCorId] = useState('azul');
+  // segunda cor (apenas para kit de 2)
+  const [selectedCor2Id, setSelectedCor2Id] = useState('verde');
   const [selectedTamanho, setSelectedTamanho] = useState('');
   const [generating, setGenerating] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
@@ -100,6 +112,10 @@ function LummaFitPage() {
 
   const PRODUTO = PRODUTOS.find(p => p.id === selectedProdutoId) ?? PRODUTOS[2];
   const COR = CORES.find(c => c.id === selectedCorId) ?? CORES[0];
+  const COR2 = CORES.find(c => c.id === selectedCor2Id) ?? CORES[1];
+
+  // Imagem exibida no hero
+  const heroImg = PRODUTO.qtdCores === 4 ? leging4 : COR.img;
 
   const [timeLeft, setTimeLeft] = useState(20 * 60);
   useEffect(() => {
@@ -128,6 +144,13 @@ function LummaFitPage() {
     setTimeout(() => void warmPixProxy(), 1500);
   }, []);
 
+  // Descrição da variação para o checkout
+  const getVariacao = () => {
+    if (PRODUTO.qtdCores === 4) return `Preta + Azul + Verde + Cinza · Tamanho ${selectedTamanho}`;
+    if (PRODUTO.qtdCores === 2) return `${COR.label} + ${COR2.label} · Tamanho ${selectedTamanho}`;
+    return `${COR.label} · Tamanho ${selectedTamanho}`;
+  };
+
   const handleBuyClick = (produtoId?: number) => {
     if (generating) return;
     if (!selectedTamanho) { toast.error('Selecione um tamanho antes de continuar'); return; }
@@ -145,7 +168,7 @@ function LummaFitPage() {
     eventIdRef.current = eventId;
     trackInitiateCheckout({ content_name: PRODUTO.nome, content_ids: [PRODUTO.contentId], value: PRODUTO.preco, currency: 'BRL', num_items: 1, event_id: eventId });
     setFormOpen(false);
-    setReviewProduct({ image: '', title: `${PRODUTO.quantity} — Lumma FIT`, variation: `${COR.label} · Tamanho ${selectedTamanho}`, quantity: 1, unitPrice: PRODUTO.preco, price: PRODUTO.preco });
+    setReviewProduct({ image: heroImg, title: `${PRODUTO.quantity} — Lumma FIT`, variation: getVariacao(), quantity: 1, unitPrice: PRODUTO.preco, price: PRODUTO.preco });
     setReviewOpen(true);
   };
 
@@ -185,7 +208,8 @@ function LummaFitPage() {
       {/* TOPO */}
       <div className="py-2.5 px-4 text-center text-sm font-bold text-white" style={{ background: `linear-gradient(90deg, ${ROSA_ESCURO}, ${ROSA}, ${ROSA_ESCURO})` }}>
         <span className="flex items-center justify-center gap-2 flex-wrap">
-          <Flame className="w-4 h-4" style={{ color: '#fde68a' }} /> Frete Grátis · Envio em 24h · Pix aprovado na hora
+          <Flame className="w-4 h-4" style={{ color: '#fde68a' }} />
+          Frete Grátis · Envio em 24h · Pix aprovado na hora
           <span className="flex items-center gap-1 ml-2" style={{ color: '#fde68a' }}><Clock className="w-3.5 h-3.5" /> {mm}:{ss}</span>
         </span>
       </div>
@@ -225,43 +249,74 @@ function LummaFitPage() {
         {/* GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
 
-          {/* PREVIEW DA COR */}
+          {/* IMAGEM */}
           <div className="space-y-3">
-            <div className="rounded-2xl overflow-hidden shadow-lg aspect-[3/4] flex items-center justify-center" style={{ backgroundColor: COR.hex + '15', border: `2px solid ${COR.hex}44` }}>
-              <div className="text-center p-8">
-                <div className="w-32 h-32 rounded-full mx-auto mb-4 shadow-xl" style={{ backgroundColor: COR.hex }} />
-                <p className="text-2xl font-black" style={{ fontFamily: 'Archivo Black, sans-serif', color: PRETO }}>Calça {COR.label}</p>
-                <p className="text-gray-500 text-sm mt-1">Lumma FIT · Flare Bailarina</p>
-                <p className="text-xs text-gray-400 mt-3 italic">Foto do produto em breve</p>
-              </div>
+            <div className="rounded-2xl overflow-hidden shadow-lg aspect-[3/4]" style={{ border: `2px solid ${ROSA}33` }}>
+              <img
+                src={heroImg}
+                alt={`Calça Lumma FIT ${PRODUTO.qtdCores === 4 ? 'Kit 4 Cores' : COR.label}`}
+                className="w-full h-full object-cover object-top"
+                fetchPriority="high"
+              />
             </div>
 
-            {/* Seletor de cor */}
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">
-                Cor: <span style={{ color: ROSA }}>{COR.label}</span>
-              </p>
-              <div className="flex items-center gap-4">
-                {CORES.map((cor) => (
-                  <button key={cor.id} onClick={() => setSelectedCorId(cor.id)} className="flex flex-col items-center gap-1" title={cor.label}>
-                    <div className="w-10 h-10 rounded-full border-2 transition-all" style={{
-                      backgroundColor: cor.hex,
-                      borderColor: selectedCorId === cor.id ? ROSA : '#e5e7eb',
-                      boxShadow: selectedCorId === cor.id ? `0 0 0 2px white, 0 0 0 4px ${ROSA}` : 'none',
-                      transform: selectedCorId === cor.id ? 'scale(1.15)' : 'scale(1)',
-                    }} />
-                    <span className="text-[10px] font-semibold text-gray-600">{cor.label.split(' ')[0]}</span>
-                  </button>
-                ))}
+            {/* Miniaturas de cor */}
+            {PRODUTO.qtdCores !== 4 && (
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">
+                  {PRODUTO.qtdCores === 2 ? 'Cor 1:' : 'Cor:'} <span style={{ color: ROSA }}>{COR.label}</span>
+                </p>
+                <div className="flex gap-3">
+                  {CORES.map((cor) => (
+                    <button key={cor.id} onClick={() => setSelectedCorId(cor.id)} className="flex flex-col items-center gap-1.5">
+                      <img src={cor.img} alt={cor.label} className="w-14 h-14 object-cover object-top rounded-lg border-2 transition-all"
+                        style={{ borderColor: selectedCorId === cor.id ? ROSA : '#e5e7eb', boxShadow: selectedCorId === cor.id ? `0 0 0 2px ${ROSA}` : 'none' }} />
+                      <span className="text-[9px] font-semibold text-gray-600">{cor.label.split(' ')[0]}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Segunda cor (apenas kit 2) */}
+            {PRODUTO.qtdCores === 2 && (
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">
+                  Cor 2: <span style={{ color: ROSA }}>{COR2.label}</span>
+                </p>
+                <div className="flex gap-3">
+                  {CORES.filter(c => c.id !== selectedCorId).map((cor) => (
+                    <button key={cor.id} onClick={() => setSelectedCor2Id(cor.id)} className="flex flex-col items-center gap-1.5">
+                      <img src={cor.img} alt={cor.label} className="w-14 h-14 object-cover object-top rounded-lg border-2 transition-all"
+                        style={{ borderColor: selectedCor2Id === cor.id ? ROSA : '#e5e7eb', boxShadow: selectedCor2Id === cor.id ? `0 0 0 2px ${ROSA}` : 'none' }} />
+                      <span className="text-[9px] font-semibold text-gray-600">{cor.label.split(' ')[0]}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Kit 4 — mostra todas as cores */}
+            {PRODUTO.qtdCores === 4 && (
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">Kit inclui as 4 cores:</p>
+                <div className="flex gap-3">
+                  {CORES.map((cor) => (
+                    <div key={cor.id} className="flex flex-col items-center gap-1.5">
+                      <img src={cor.img} alt={cor.label} className="w-14 h-14 object-cover object-top rounded-lg border border-gray-200" />
+                      <span className="text-[9px] font-semibold text-gray-600">{cor.label.split(' ')[0]}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Selos */}
             <div className="grid grid-cols-3 gap-2">
               {[
-                { icon: Shield, label: 'Produto', sub: '100% Original' },
-                { icon: Truck, label: 'Frete', sub: 'Grátis' },
-                { icon: Package, label: 'Envio', sub: 'Em 24h' },
+                { icon: Shield, label: 'Original', sub: '100% Garantido' },
+                { icon: Truck,  label: 'Frete',   sub: 'Grátis' },
+                { icon: Package, label: 'Envio',  sub: 'Em 24h' },
               ].map((b, i) => (
                 <div key={i} className="flex flex-col items-center gap-1 rounded-xl py-3 bg-white shadow-sm border border-gray-100 text-center">
                   <b.icon className="w-5 h-5" style={{ color: ROSA }} />
@@ -275,7 +330,7 @@ function LummaFitPage() {
           {/* OFERTA */}
           <div className="space-y-4">
 
-            {/* Opções de produto */}
+            {/* Opções */}
             <div>
               <p className="text-xs font-black uppercase tracking-widest mb-2 text-gray-500">Escolha sua opção:</p>
               <div className="space-y-2">
@@ -286,9 +341,7 @@ function LummaFitPage() {
                       className="w-full text-left rounded-xl p-3.5 transition-all relative"
                       style={{ border: `2px solid ${sel ? ROSA : '#e5e7eb'}`, background: sel ? `${ROSA}08` : 'white', boxShadow: sel ? `0 0 0 1px ${ROSA}30` : 'none' }}>
                       {prod.badge && (
-                        <span className="absolute -top-2.5 left-3 text-[10px] font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: ROSA }}>
-                          {prod.badge}
-                        </span>
+                        <span className="absolute -top-2.5 left-3 text-[10px] font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: ROSA }}>{prod.badge}</span>
                       )}
                       <div className="flex items-center justify-between">
                         <div>
@@ -328,9 +381,7 @@ function LummaFitPage() {
               </div>
               {showSizeGuide && (
                 <div className="mt-3 rounded-xl overflow-hidden border border-gray-200">
-                  <div className="py-2 px-4 text-center text-xs font-black text-white uppercase" style={{ backgroundColor: ROSA }}>
-                    Medidas em centímetros
-                  </div>
+                  <div className="py-2 px-4 text-center text-xs font-black text-white uppercase" style={{ backgroundColor: ROSA }}>Medidas em centímetros</div>
                   <table className="w-full text-xs bg-white">
                     <thead><tr className="bg-gray-50">
                       <th className="py-2 px-3 text-left font-bold text-gray-500">Tam.</th>
@@ -374,7 +425,6 @@ function LummaFitPage() {
               </div>
             </div>
 
-            {/* FRETE + ESCASSEZ */}
             <div className="flex items-center gap-3 rounded-xl px-4 py-3 bg-green-50 border border-green-200">
               <Truck className="w-5 h-5 text-green-600 shrink-0" />
               <div>
@@ -388,7 +438,6 @@ function LummaFitPage() {
               <span>Apenas <strong>{unitsLeft} unidades</strong> em estoque hoje · expira em {mm}:{ss}</span>
             </div>
 
-            {/* BULLETS */}
             <ul className="space-y-2 bg-white rounded-xl p-4 border border-gray-100">
               {['Cintura alta modeladora — define e sustenta', 'Flare bailarina — alonga as pernas visualmente', 'Tecido grosso, não transparece', 'Confortável para o dia a dia e academia', 'Disponível em 4 cores exclusivas'].map((t, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm text-gray-800">
@@ -539,12 +588,12 @@ function LummaFitPage() {
 
       <CheckoutForm open={formOpen} onOpenChange={setFormOpen} onConfirm={handleFormConfirm}
         headerEyebrow="👗 Lumma FIT" title={PRODUTO.nome}
-        description={`Cor: ${COR.label} · Tamanho: ${selectedTamanho || '—'} · Frete grátis`}
+        description={getVariacao()}
         submitLabel="CONTINUAR PARA O PAGAMENTO →" primaryColor={ROSA} accentColor="#fde68a" />
       <OrderReviewDialog open={reviewOpen} onOpenChange={setReviewOpen} product={reviewProduct}
         onPay={handleCreatePixPayment} onApproved={handlePixApproved}
         headerEyebrow="👗 Lumma FIT" title={PRODUTO.nome}
-        description={`${COR.label} · Tamanho ${selectedTamanho} · Frete grátis`}
+        description={getVariacao()}
         primaryColor={ROSA} accentColor="#fde68a"
         payButtonLabel={(total) => `💳 Pagar R$ ${total} com Pix`} />
     </div>
