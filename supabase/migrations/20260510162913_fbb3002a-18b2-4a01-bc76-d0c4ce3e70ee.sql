@@ -1,0 +1,2 @@
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS tracking_email_sent_at TIMESTAMPTZ NULL;
+CREATE INDEX IF NOT EXISTS idx_orders_pending_tracking_email ON public.orders (approved_at) WHERE status = 'paid' AND tracking_email_sent_at IS NULL;
