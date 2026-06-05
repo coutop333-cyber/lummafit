@@ -297,7 +297,7 @@ function LummaFitPage() {
                   Cor 2: <span style={{ color: ROSA }}>{COR2.label}</span>
                 </p>
                 <div className="flex gap-3">
-                  {CORES.filter(c => c.id !== selectedCorId).map((cor) => (
+                  {CORES.map((cor) => (
                     <button key={cor.id} onClick={() => setSelectedCor2Id(cor.id)} className="flex flex-col items-center gap-1.5">
                       <img src={cor.img} alt={cor.label} className="w-14 h-14 object-cover object-top rounded-lg border-2 transition-all"
                         style={{ borderColor: selectedCor2Id === cor.id ? ROSA : '#e5e7eb', boxShadow: selectedCor2Id === cor.id ? `0 0 0 2px ${ROSA}` : 'none' }} />
