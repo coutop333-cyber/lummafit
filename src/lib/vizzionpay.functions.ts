@@ -333,20 +333,17 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
               }
             } catch (e) { console.error('[vizzion-status][Meta CAPI]', e); }
 
-            // Disparar pix-webhook Edge Function para processar email
-            // (Edge Function tem acesso confiável à Resend)
-            try {
-              const supabaseUrl = process.env.SUPABASE_URL?.trim() || 'https://lrkmfhqetfwtdrfuginx.supabase.co';
-              await fetch(`${supabaseUrl}/functions/v1/pix-webhook`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  event: 'TRANSACTION_PAID',
-                  transactionId: data.txid,
-                  metadata: { externalReference: order.external_reference },
-                }),
-              });
-            } catch (e) { console.error('[vizzion-status][pix-webhook-call]', e); }
+            // Disparar pix-webhook Edge Function (fire-and-forget — não bloqueia o retorno)
+            const supabaseUrl = process.env.SUPABASE_URL?.trim() || 'https://lrkmfhqetfwtdrfuginx.supabase.co';
+            fetch(`${supabaseUrl}/functions/v1/pix-webhook`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                event: 'TRANSACTION_PAID',
+                transactionId: data.txid,
+                metadata: { externalReference: order.external_reference },
+              }),
+            }).catch((e) => console.error('[vizzion-status][pix-webhook-call]', e));
 
           } catch (e) { console.error('[vizzion-status][integrações]', e); }
 
@@ -379,19 +376,17 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
           if (!(orderFull as any).meta_capi_sent_at) {
             await sendAndLogMetaCapiPurchase(orderFull, { eventId: String(orderFull.external_reference), logTag: '[VIZZION_META_CAPI_FALLBACK]' }).catch(() => {});
           }
-          // Email via Edge Function (confiável)
-          try {
-            const supabaseUrl = process.env.SUPABASE_URL?.trim() || 'https://lrkmfhqetfwtdrfuginx.supabase.co';
-            await fetch(`${supabaseUrl}/functions/v1/pix-webhook`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                event: 'TRANSACTION_PAID',
-                transactionId: data.txid,
-                metadata: { externalReference: order.external_reference },
-              }),
-            });
-          } catch (e) { console.error('[vizzion-status][pix-webhook-call-fallback]', e); }
+          // Email via Edge Function (fire-and-forget)
+          const supabaseUrl2 = process.env.SUPABASE_URL?.trim() || 'https://lrkmfhqetfwtdrfuginx.supabase.co';
+          fetch(`${supabaseUrl2}/functions/v1/pix-webhook`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event: 'TRANSACTION_PAID',
+              transactionId: data.txid,
+              metadata: { externalReference: order.external_reference },
+            }),
+          }).catch((e) => console.error('[vizzion-status][pix-webhook-call-fallback]', e));
         }
       } catch (e) { console.error('[vizzion-status][UTMify-paid-fallback]', e); }
     }
