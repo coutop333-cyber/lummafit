@@ -333,10 +333,20 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
               }
             } catch (e) { console.error('[vizzion-status][Meta CAPI]', e); }
 
-            // Email automático de confirmação
+            // Disparar pix-webhook Edge Function para processar email
+            // (Edge Function tem acesso confiável à Resend)
             try {
-              await sendOrderConfirmationEmail(orderFull);
-            } catch (e) { console.error('[vizzion-status][email]', e); }
+              const supabaseUrl = process.env.SUPABASE_URL?.trim() || 'https://lrkmfhqetfwtdrfuginx.supabase.co';
+              await fetch(`${supabaseUrl}/functions/v1/pix-webhook`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  event: 'TRANSACTION_PAID',
+                  transactionId: data.txid,
+                  metadata: { externalReference: order.external_reference },
+                }),
+              });
+            } catch (e) { console.error('[vizzion-status][pix-webhook-call]', e); }
 
           } catch (e) { console.error('[vizzion-status][integrações]', e); }
 
@@ -369,7 +379,19 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
           if (!(orderFull as any).meta_capi_sent_at) {
             await sendAndLogMetaCapiPurchase(orderFull, { eventId: String(orderFull.external_reference), logTag: '[VIZZION_META_CAPI_FALLBACK]' }).catch(() => {});
           }
-          await sendOrderConfirmationEmail(orderFull).catch(() => {});
+          // Email via Edge Function (confiável)
+          try {
+            const supabaseUrl = process.env.SUPABASE_URL?.trim() || 'https://lrkmfhqetfwtdrfuginx.supabase.co';
+            await fetch(`${supabaseUrl}/functions/v1/pix-webhook`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                event: 'TRANSACTION_PAID',
+                transactionId: data.txid,
+                metadata: { externalReference: order.external_reference },
+              }),
+            });
+          } catch (e) { console.error('[vizzion-status][pix-webhook-call-fallback]', e); }
         }
       } catch (e) { console.error('[vizzion-status][UTMify-paid-fallback]', e); }
     }
