@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { supabaseAdmin } from '@/integrations/supabase/client.server';
 import { sendUtmifyOrder } from '@/lib/utmify.server';
 import { sendAndLogMetaCapiPurchase } from '@/lib/meta-capi.server';
-import { sendTrackingEmail } from '@/lib/email/sendTrackingEmail.server';
+import { Resend } from 'resend';
 
 const VIZZION_BASE = 'https://app.vizzionpay.com.br/api/v1';
 
@@ -453,22 +453,19 @@ async function sendOrderConfirmationEmail(order: any) {
 </body></html>`;
 
   try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: fromEmail,
-        to: [customerEmail],
-        subject: '✅ Pedido confirmado — Lumma FIT',
-        html,
-      }),
+    const resend = new Resend(resendKey);
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: [customerEmail],
+      subject: '✅ Pedido confirmado — Lumma FIT',
+      html,
     });
-    const body = await res.json();
-    console.log('[vizzion][email-confirmacao]', res.status, body?.id, customerEmail);
 
-    if (!res.ok) {
-      console.error('[vizzion][email-confirmacao] erro Resend', body);
+    if (error) {
+      console.error('[vizzion][email-confirmacao] erro Resend', error);
       await supabaseAdmin.from('orders').update({ order_email_sent_at: null } as any).eq('id', order.id);
+    } else {
+      console.log('[vizzion][email-confirmacao] enviado', data?.id, customerEmail);
     }
   } catch (err) {
     console.error('[vizzion][email-confirmacao] exceção', err);
