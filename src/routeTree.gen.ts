@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ObrigadoRouteImport } from './routes/obrigado'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as RastreioCodigoRouteImport } from './routes/rastreio.$codigo'
 import { Route as ApiPublicPedidoStatusRouteImport } from './routes/api/public/pedido-status'
 
 const ObrigadoRoute = ObrigadoRouteImport.update({
@@ -23,6 +25,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RastreioCodigoRoute = RastreioCodigoRouteImport.update({
+  id: '/rastreio/$codigo',
+  path: '/rastreio/$codigo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPedidoStatusRoute = ApiPublicPedidoStatusRouteImport.update({
   id: '/api/public/pedido-status',
   path: '/api/public/pedido-status',
@@ -32,30 +44,54 @@ const ApiPublicPedidoStatusRoute = ApiPublicPedidoStatusRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
+  '/rastreio/$codigo': typeof RastreioCodigoRoute
+  '/admin/': typeof AdminIndexRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
+  '/rastreio/$codigo': typeof RastreioCodigoRoute
+  '/admin': typeof AdminIndexRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
+  '/rastreio/$codigo': typeof RastreioCodigoRoute
+  '/admin/': typeof AdminIndexRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/obrigado' | '/api/public/pedido-status'
+  fullPaths:
+    | '/'
+    | '/obrigado'
+    | '/rastreio/$codigo'
+    | '/admin/'
+    | '/api/public/pedido-status'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/obrigado' | '/api/public/pedido-status'
-  id: '__root__' | '/' | '/obrigado' | '/api/public/pedido-status'
+  to:
+    | '/'
+    | '/obrigado'
+    | '/rastreio/$codigo'
+    | '/admin'
+    | '/api/public/pedido-status'
+  id:
+    | '__root__'
+    | '/'
+    | '/obrigado'
+    | '/rastreio/$codigo'
+    | '/admin/'
+    | '/api/public/pedido-status'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ObrigadoRoute: typeof ObrigadoRoute
+  RastreioCodigoRoute: typeof RastreioCodigoRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   ApiPublicPedidoStatusRoute: typeof ApiPublicPedidoStatusRoute
 }
 
@@ -75,6 +111,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rastreio/$codigo': {
+      id: '/rastreio/$codigo'
+      path: '/rastreio/$codigo'
+      fullPath: '/rastreio/$codigo'
+      preLoaderRoute: typeof RastreioCodigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/pedido-status': {
       id: '/api/public/pedido-status'
       path: '/api/public/pedido-status'
@@ -88,6 +138,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ObrigadoRoute: ObrigadoRoute,
+  RastreioCodigoRoute: RastreioCodigoRoute,
+  AdminIndexRoute: AdminIndexRoute,
   ApiPublicPedidoStatusRoute: ApiPublicPedidoStatusRoute,
 }
 export const routeTree = rootRouteImport
