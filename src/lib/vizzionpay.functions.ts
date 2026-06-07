@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { supabaseAdmin } from '@/integrations/supabase/client.server';
 import { sendUtmifyOrder } from '@/lib/utmify.server';
 import { sendAndLogMetaCapiPurchase } from '@/lib/meta-capi.server';
+import { sendTrackingEmail } from '@/lib/email/sendTrackingEmail.server';
 
 const VIZZION_BASE = 'https://app.vizzionpay.com.br/api/v1';
 
@@ -331,6 +332,12 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
                 await sendAndLogMetaCapiPurchase(orderFull, { eventId: String(orderFull.external_reference), logTag: '[VIZZION_META_CAPI]' });
               }
             } catch (e) { console.error('[vizzion-status][Meta CAPI]', e); }
+
+            // Email automático de confirmação
+            try {
+              await sendOrderConfirmationEmail(orderFull);
+            } catch (e) { console.error('[vizzion-status][email]', e); }
+
           } catch (e) { console.error('[vizzion-status][integrações]', e); }
 
           return { status: 'approved', external_reference: order.external_reference || undefined, transaction_amount: Number(order.amount || 0) };
@@ -362,6 +369,7 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
           if (!(orderFull as any).meta_capi_sent_at) {
             await sendAndLogMetaCapiPurchase(orderFull, { eventId: String(orderFull.external_reference), logTag: '[VIZZION_META_CAPI_FALLBACK]' }).catch(() => {});
           }
+          await sendOrderConfirmationEmail(orderFull).catch(() => {});
         }
       } catch (e) { console.error('[vizzion-status][UTMify-paid-fallback]', e); }
     }
@@ -372,6 +380,49 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
       transaction_amount: Number(order.amount || 0),
     };
   });
+
+// ============ Email automático de confirmação de pedido ============
+async function sendOrderConfirmationEmail(order: any) {
+  const tp = order?.tracking_payload || {};
+  const customerEmail: string | undefined = tp.email;
+  if (!customerEmail) return;
+  if ((order as any).order_email_sent_at) return;
+
+  // Claim para não enviar duplicado
+  const { data: claimed, error: claimErr } = await supabaseAdmin
+    .from('orders')
+    .update({ order_email_sent_at: new Date().toISOString() } as any)
+    .eq('id', order.id)
+    .is('order_email_sent_at', null)
+    .select('id')
+    .maybeSingle();
+
+  if (claimErr || !claimed) return;
+
+  const nome = tp.name || tp.nome || 'Cliente';
+  const codigo = order.external_reference;
+  const kit = order.kit_title || 'Produto';
+  const valor = `R$ ${Number(order.amount || 0).toFixed(2).replace('.', ',')}`;
+  const link = `https://lummafit.com/rastreio/${codigo}`;
+
+  const result = await sendTrackingEmail({
+    nomeCliente: nome,
+    emailCliente: customerEmail,
+    codigoPedido: codigo,
+    statusAtual: 'Pagamento aprovado — pedido em preparação',
+    observacao: `Seu pedido ${kit} foi confirmado e está sendo preparado para envio.`,
+    linkRastreio: link,
+  });
+
+  console.log('[vizzion][email-confirmacao]', { ok: result.ok, email: customerEmail });
+
+  if (!result.ok) {
+    await supabaseAdmin
+      .from('orders')
+      .update({ order_email_sent_at: null } as any)
+      .eq('id', order.id);
+  }
+}
 
 // ============ Consulta direta na VizzionPay ============
 export async function consultVizzionTransaction(transactionId: string): Promise<{
