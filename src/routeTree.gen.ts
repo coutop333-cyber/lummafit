@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ObrigadoRouteImport } from './routes/obrigado'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicPedidoStatusRouteImport } from './routes/api/public/pedido-status'
-import { Route as ApiPublicKorvexWebhookRouteImport } from './routes/api/public/korvex-webhook'
 
 const ObrigadoRoute = ObrigadoRouteImport.update({
   id: '/obrigado',
@@ -29,56 +28,34 @@ const ApiPublicPedidoStatusRoute = ApiPublicPedidoStatusRouteImport.update({
   path: '/api/public/pedido-status',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicKorvexWebhookRoute = ApiPublicKorvexWebhookRouteImport.update({
-  id: '/api/public/korvex-webhook',
-  path: '/api/public/korvex-webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
-  '/api/public/korvex-webhook': typeof ApiPublicKorvexWebhookRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
-  '/api/public/korvex-webhook': typeof ApiPublicKorvexWebhookRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
-  '/api/public/korvex-webhook': typeof ApiPublicKorvexWebhookRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/obrigado'
-    | '/api/public/korvex-webhook'
-    | '/api/public/pedido-status'
+  fullPaths: '/' | '/obrigado' | '/api/public/pedido-status'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/obrigado'
-    | '/api/public/korvex-webhook'
-    | '/api/public/pedido-status'
-  id:
-    | '__root__'
-    | '/'
-    | '/obrigado'
-    | '/api/public/korvex-webhook'
-    | '/api/public/pedido-status'
+  to: '/' | '/obrigado' | '/api/public/pedido-status'
+  id: '__root__' | '/' | '/obrigado' | '/api/public/pedido-status'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ObrigadoRoute: typeof ObrigadoRoute
-  ApiPublicKorvexWebhookRoute: typeof ApiPublicKorvexWebhookRoute
   ApiPublicPedidoStatusRoute: typeof ApiPublicPedidoStatusRoute
 }
 
@@ -105,20 +82,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPedidoStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/korvex-webhook': {
-      id: '/api/public/korvex-webhook'
-      path: '/api/public/korvex-webhook'
-      fullPath: '/api/public/korvex-webhook'
-      preLoaderRoute: typeof ApiPublicKorvexWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ObrigadoRoute: ObrigadoRoute,
-  ApiPublicKorvexWebhookRoute: ApiPublicKorvexWebhookRoute,
   ApiPublicPedidoStatusRoute: ApiPublicPedidoStatusRoute,
 }
 export const routeTree = rootRouteImport

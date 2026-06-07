@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Copy, Check, QrCode, Truck, Shield, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { useServerFn } from '@tanstack/react-start';
-import { getKorvexPaymentStatus } from '@/lib/korvex.functions';
+import { getVizzionPaymentStatus } from '@/lib/vizzionpay.functions';
 import { useMetaPixel } from '@/hooks/useMetaPixel';
 import type { PixPaymentInfo } from './PixCheckoutDialog';
 import pixLogo from '@/assets/pix-logo.png';
@@ -50,7 +50,7 @@ export function OrderReviewDialog({
   const [payment, setPayment] = useState<PixPaymentInfo | null>(null);
   const [status, setStatus] = useState<string>('pending');
   const [copied, setCopied] = useState(false);
-  const getStatus = useServerFn(getKorvexPaymentStatus);
+  const getStatus = useServerFn(getVizzionPaymentStatus);
   const { trackAddPaymentInfo } = useMetaPixel();
   const firedRef = useRef(false);
   const addPaymentInfoFiredRef = useRef(false);
