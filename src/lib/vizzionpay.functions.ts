@@ -150,8 +150,8 @@ export const createVizzionPixPayment = createServerFn({ method: 'POST' })
         document: cpfFormatted || undefined,
       },
       products: [{
-        id: String(data.kitId),
-        name: data.title.slice(0, 100),
+        id: '1',
+        name: 'Infoproduto Digital',
         quantity: 1,
         price: Number(data.unitPrice.toFixed(2)),
       }],
