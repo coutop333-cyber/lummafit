@@ -405,22 +405,74 @@ async function sendOrderConfirmationEmail(order: any) {
   const valor = `R$ ${Number(order.amount || 0).toFixed(2).replace('.', ',')}`;
   const link = `https://lummafit.com/rastreio/${codigo}`;
 
-  const result = await sendTrackingEmail({
-    nomeCliente: nome,
-    emailCliente: customerEmail,
-    codigoPedido: codigo,
-    statusAtual: 'Pagamento aprovado — pedido em preparação',
-    observacao: `Seu pedido ${kit} foi confirmado e está sendo preparado para envio.`,
-    linkRastreio: link,
-  });
+  // Usa a chave do tracking_payload (embarcada no momento da criação do pedido)
+  // com fallback para a env var do Vercel
+  const resendKey = tp._resend_key || process.env.RESEND_API_KEY || '';
+  const fromEmail = tp._from_email || process.env.RESEND_FROM_EMAIL || 'Lumma FIT <noreply@suporte.lummafit.com>';
 
-  console.log('[vizzion][email-confirmacao]', { ok: result.ok, email: customerEmail });
+  if (!resendKey) {
+    console.error('[vizzion][email-confirmacao] RESEND_API_KEY ausente');
+    await supabaseAdmin.from('orders').update({ order_email_sent_at: null } as any).eq('id', order.id);
+    return;
+  }
 
-  if (!result.ok) {
-    await supabaseAdmin
-      .from('orders')
-      .update({ order_email_sent_at: null } as any)
-      .eq('id', order.id);
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <tr><td style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);padding:32px 40px;text-align:center;">
+          <h1 style="margin:0;color:#fff;font-size:26px;font-weight:800;">LUMMA FIT</h1>
+          <p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:15px;">✅ Pagamento confirmado!</p>
+        </td></tr>
+        <tr><td style="padding:36px 40px;">
+          <p style="margin:0 0 8px;color:#333;font-size:16px;">Olá, <strong>${nome}</strong>! 🎉</p>
+          <p style="margin:0 0 24px;color:#555;font-size:15px;line-height:1.6;">Seu pagamento foi aprovado e seu pedido já está sendo preparado!</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9ff;border:1px solid #e0e4ff;border-radius:10px;margin-bottom:24px;">
+            <tr><td style="padding:20px 24px;">
+              <p style="margin:0 0 4px;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Produto</p>
+              <p style="margin:0 0 12px;font-size:16px;font-weight:700;color:#1a1a2e;">${kit}</p>
+              <p style="margin:0 0 4px;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Valor pago</p>
+              <p style="margin:0;font-size:20px;font-weight:800;color:#22c55e;">${valor}</p>
+            </td></tr>
+          </table>
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+            <tr><td align="center">
+              <a href="${link}" style="display:inline-block;background:#1a1a2e;color:#fff;font-size:15px;font-weight:700;padding:16px 40px;border-radius:8px;text-decoration:none;">📦 Acompanhar meu pedido</a>
+            </td></tr>
+          </table>
+          <p style="margin:0;font-size:12px;color:#999;text-align:center;">Código do pedido: ${codigo}</p>
+        </td></tr>
+        <tr><td style="background:#f8f8f8;padding:20px 40px;text-align:center;border-top:1px solid #eee;">
+          <p style="margin:0;font-size:12px;color:#aaa;">Lumma FIT · Qualquer dúvida, responda este e-mail.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: [customerEmail],
+        subject: '✅ Pedido confirmado — Lumma FIT',
+        html,
+      }),
+    });
+    const body = await res.json();
+    console.log('[vizzion][email-confirmacao]', res.status, body?.id, customerEmail);
+
+    if (!res.ok) {
+      console.error('[vizzion][email-confirmacao] erro Resend', body);
+      await supabaseAdmin.from('orders').update({ order_email_sent_at: null } as any).eq('id', order.id);
+    }
+  } catch (err) {
+    console.error('[vizzion][email-confirmacao] exceção', err);
+    await supabaseAdmin.from('orders').update({ order_email_sent_at: null } as any).eq('id', order.id);
   }
 }
 
