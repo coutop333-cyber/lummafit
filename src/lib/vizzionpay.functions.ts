@@ -106,9 +106,13 @@ export const createVizzionPixPayment = createServerFn({ method: 'POST' })
       _source: data.source || 'lummafit',
       _platform: 'LummaFit',
       _site: 'lummafit',
+      _site_name: 'Lumma FIT',
+      _site_url: 'https://lummafit.com',
       _utmify_token: process.env.UTMIFY_API_TOKEN || '',
       _meta_pixel_id: process.env.META_PIXEL_ID || '',
       _meta_token: process.env.META_CONVERSIONS_API_TOKEN || '',
+      _resend_key: process.env.RESEND_API_KEY || '',
+      _from_email: process.env.RESEND_FROM_EMAIL || 'Lumma FIT <noreply@suporte.lummafit.com>',
     } as any;
 
     const { error: insertErr } = await supabaseAdmin
