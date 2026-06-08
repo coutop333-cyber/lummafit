@@ -6,12 +6,12 @@ import { sendUtmifyOrder } from '@/lib/utmify.server';
 import { sendAndLogMetaCapiPurchase } from '@/lib/meta-capi.server';
 import { Resend } from 'resend';
 
-const VIZZION_BASE = 'https://app.vizzionpay.com.br/api/v1';
+const KORVEX_BASE = 'https://app.korvex.com.br/api/v1';
 
-function getVizzionHeaders(): Record<string, string> {
-  const pub = process.env.VIZZIONPAY_PUBLIC_KEY?.trim();
-  const sec = process.env.VIZZIONPAY_SECRET_KEY?.trim();
-  if (!pub || !sec) throw new Error('VIZZIONPAY_PUBLIC_KEY / VIZZIONPAY_SECRET_KEY não configurados.');
+function getKorvexHeaders(): Record<string, string> {
+  const pub = process.env.KORVEX_PUBLIC_KEY?.trim();
+  const sec = process.env.KORVEX_SECRET_KEY?.trim();
+  if (!pub || !sec) throw new Error('KORVEX_PUBLIC_KEY / KORVEX_SECRET_KEY não configurados.');
   return {
     'x-public-key': pub,
     'x-secret-key': sec,
@@ -26,7 +26,7 @@ function getWebhookUrl(): string {
 }
 
 // ============ Warm ============
-export const warmVizzionPix = createServerFn({ method: 'POST' }).handler(async () => {
+export const warmKorvexPix = createServerFn({ method: 'POST' }).handler(async () => {
   return { ok: true };
 });
 
@@ -60,7 +60,7 @@ const createInput = z.object({
 });
 
 // ============ Criar cobrança Pix ============
-export const createVizzionPixPayment = createServerFn({ method: 'POST' })
+export const createKorvexPixPayment = createServerFn({ method: 'POST' })
   .inputValidator((input: unknown) => createInput.parse(input))
   .handler(async ({ data }) => {
     const totalStartedAt = Date.now();
@@ -95,7 +95,7 @@ export const createVizzionPixPayment = createServerFn({ method: 'POST' })
     }
 
     if (blockReasons.length) {
-      console.error('[vizzion-create][BLOQUEIO]', { motivos: blockReasons, origin });
+      console.error('[korvex-create][BLOQUEIO]', { motivos: blockReasons, origin });
       throw new Error(`Pagamento bloqueado: ${blockReasons.join('; ')}`);
     }
 
@@ -130,7 +130,7 @@ export const createVizzionPixPayment = createServerFn({ method: 'POST' })
       } as any, { onConflict: 'external_reference' });
 
     if (insertErr) {
-      console.error('[vizzion-create] erro ao persistir pedido', insertErr);
+      console.error('[korvex-create] erro ao persistir pedido', insertErr);
       throw new Error('Não foi possível registrar o pedido. Tente novamente.');
     }
 
@@ -166,9 +166,9 @@ export const createVizzionPixPayment = createServerFn({ method: 'POST' })
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
-      const res = await fetch(`${VIZZION_BASE}/gateway/pix/receive`, {
+      const res = await fetch(`${KORVEX_BASE}/gateway/pix/receive`, {
         method: 'POST',
-        headers: getVizzionHeaders(),
+        headers: getKorvexHeaders(),
         body: JSON.stringify(body),
         signal: controller.signal,
       });
@@ -177,14 +177,14 @@ export const createVizzionPixPayment = createServerFn({ method: 'POST' })
       try { upstream = JSON.parse(text); } catch { upstream = { raw: text }; }
 
       if (!res.ok) {
-        console.error('[vizzion-create][ERROR]', { httpStatus, response: upstream });
+        console.error('[korvex-create][ERROR]', { httpStatus, response: upstream });
         const details = upstream?.details
           ? (Array.isArray(upstream.details)
             ? upstream.details.map((d: any) => d?.message || JSON.stringify(d)).join(', ')
             : JSON.stringify(upstream.details))
           : null;
         const msg = upstream?.message || upstream?.error || `HTTP ${httpStatus}`;
-        throw new Error(`Falha ao gerar Pix (VizzionPay): ${msg}${details ? ` — ${details}` : ''}`);
+        throw new Error(`Falha ao gerar Pix (Korvex): ${msg}${details ? ` — ${details}` : ''}`);
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -203,8 +203,8 @@ export const createVizzionPixPayment = createServerFn({ method: 'POST' })
     let pixBase64: string = rawBase64.startsWith('data:') ? rawBase64.split(',')[1] || '' : rawBase64;
 
     if (!transactionId || !pixCode) {
-      console.error('[vizzion-create][INCOMPLETO]', upstream);
-      throw new Error('VizzionPay retornou cobrança incompleta.');
+      console.error('[korvex-create][INCOMPLETO]', upstream);
+      throw new Error('Korvex retornou cobrança incompleta.');
     }
 
     if (!pixBase64 && pixCode) {
@@ -213,7 +213,7 @@ export const createVizzionPixPayment = createServerFn({ method: 'POST' })
         const dataUrl = await QRCode.toDataURL(pixCode, { margin: 1, width: 320 });
         pixBase64 = dataUrl.split(',')[1] || '';
       } catch (e) {
-        console.error('[vizzion-create] erro ao gerar QR base64', e);
+        console.error('[korvex-create] erro ao gerar QR base64', e);
       }
     }
 
@@ -227,26 +227,26 @@ export const createVizzionPixPayment = createServerFn({ method: 'POST' })
         efi_expires_at: null,
         efi_status: 'PENDING',
         efi_payload: upstream as any,
-        payment_provider: 'vizzionpay',
+        payment_provider: 'korvex',
       } as any)
       .eq('external_reference', pedidoId);
 
     if (updateErr) {
-      console.error('[vizzion-create] erro ao salvar dados', updateErr);
+      console.error('[korvex-create] erro ao salvar dados', updateErr);
       throw new Error('Pix gerado, mas não foi possível registrar o vínculo do pedido.');
     }
 
-    console.log('[vizzion-create][OK]', { pedidoId, transactionId, total_ms: Date.now() - totalStartedAt });
+    console.log('[korvex-create][OK]', { pedidoId, transactionId, total_ms: Date.now() - totalStartedAt });
 
     // UTMify: waiting_payment
     try {
       const { data: orderFull } = await supabaseAdmin.from('orders').select('*').eq('external_reference', pedidoId).maybeSingle();
       if (orderFull) {
         const result = await sendUtmifyOrder(orderFull, { status: 'waiting_payment' });
-        console.log('[vizzion-create][UTMify-waiting]', { ok: result.ok, httpStatus: result.httpStatus });
+        console.log('[korvex-create][UTMify-waiting]', { ok: result.ok, httpStatus: result.httpStatus });
       }
     } catch (err) {
-      console.error('[vizzion-create][UTMify-waiting] erro', err);
+      console.error('[korvex-create][UTMify-waiting] erro', err);
     }
 
     return {
@@ -265,7 +265,7 @@ export const createVizzionPixPayment = createServerFn({ method: 'POST' })
 // ============ Polling de status ============
 const statusInput = z.object({ txid: z.string().min(4).max(120) });
 
-export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
+export const getKorvexPaymentStatus = createServerFn({ method: 'POST' })
   .inputValidator((input: unknown) => statusInput.parse(input))
   .handler(async ({ data }) => {
     const { data: order } = await supabaseAdmin
@@ -286,13 +286,13 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
       internal === 'rejected' || internal === 'cancelled' || internal === 'canceled' ||
       gw === 'EXPIRED' || gw === 'CANCELLED';
 
-    // Fallback: consulta VizzionPay diretamente
+    // Fallback: consulta Korvex diretamente
     if (!isPaid && !isFailed) {
       try {
-        const vizzionStatus = await consultVizzionTransaction(data.txid);
-        console.log('[vizzion-status][fallback]', { txid: data.txid, status: vizzionStatus.status });
+        const korvexStatus = await consultKorvexTransaction(data.txid);
+        console.log('[korvex-status][fallback]', { txid: data.txid, status: korvexStatus.status });
 
-        if (vizzionStatus.status === 'confirmed') {
+        if (korvexStatus.status === 'confirmed') {
           await supabaseAdmin.from('orders')
             .update({ status: 'paid', efi_status: 'CONFIRMED', approved_at: new Date().toISOString() } as any)
             .eq('id', order.id);
@@ -309,7 +309,7 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
                   { onConflict: 'codigo_pedido', ignoreDuplicates: true }
                 );
               }
-            } catch (e) { console.error('[vizzion-status][rastreio]', e); }
+            } catch (e) { console.error('[korvex-status][rastreio]', e); }
 
             // UTMify
             try {
@@ -317,21 +317,21 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
               if (claimed) {
                 try { await sendUtmifyOrder(orderFull, { status: 'waiting_payment' }); } catch {}
                 const result = await sendUtmifyOrder(orderFull, { status: 'paid' });
-                console.log('[vizzion-status][UTMify]', { ok: result.ok, httpStatus: result.httpStatus });
+                console.log('[korvex-status][UTMify]', { ok: result.ok, httpStatus: result.httpStatus });
                 await supabaseAdmin.from('orders').update({
                   utmify_payload: result.payload as any, utmify_http_status: result.httpStatus,
                   utmify_response: result.responseBody, utmify_error: result.error,
                   utmify_sent_at: result.ok ? new Date().toISOString() : null, utmify_processing_at: null,
                 } as any).eq('id', order.id);
               }
-            } catch (e) { console.error('[vizzion-status][UTMify]', e); }
+            } catch (e) { console.error('[korvex-status][UTMify]', e); }
 
             // Meta CAPI
             try {
               if (!(orderFull as any).meta_capi_sent_at) {
-                await sendAndLogMetaCapiPurchase(orderFull, { eventId: String(orderFull.external_reference), logTag: '[VIZZION_META_CAPI]' });
+                await sendAndLogMetaCapiPurchase(orderFull, { eventId: String(orderFull.external_reference), logTag: '[KORVEX_META_CAPI]' });
               }
-            } catch (e) { console.error('[vizzion-status][Meta CAPI]', e); }
+            } catch (e) { console.error('[korvex-status][Meta CAPI]', e); }
 
             // Disparar pix-webhook Edge Function (fire-and-forget — não bloqueia o retorno)
             const supabaseUrl = process.env.SUPABASE_URL?.trim() || 'https://lrkmfhqetfwtdrfuginx.supabase.co';
@@ -343,19 +343,19 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
                 transactionId: data.txid,
                 metadata: { externalReference: order.external_reference },
               }),
-            }).catch((e) => console.error('[vizzion-status][pix-webhook-call]', e));
+            }).catch((e) => console.error('[korvex-status][pix-webhook-call]', e));
 
-          } catch (e) { console.error('[vizzion-status][integrações]', e); }
+          } catch (e) { console.error('[korvex-status][integrações]', e); }
 
           return { status: 'approved', external_reference: order.external_reference || undefined, transaction_amount: Number(order.amount || 0) };
         }
 
-        if (vizzionStatus.status === 'expired') {
+        if (korvexStatus.status === 'expired') {
           await supabaseAdmin.from('orders').update({ efi_status: 'EXPIRED' } as any).eq('id', order.id);
           return { status: 'rejected', external_reference: order.external_reference || undefined, transaction_amount: 0 };
         }
       } catch (err) {
-        console.error('[vizzion-status][fallback] erro', err);
+        console.error('[korvex-status][fallback] erro', err);
       }
     }
 
@@ -374,7 +374,7 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
             utmify_sent_at: result.ok ? new Date().toISOString() : null, utmify_processing_at: null,
           } as any).eq('id', order.id);
           if (!(orderFull as any).meta_capi_sent_at) {
-            await sendAndLogMetaCapiPurchase(orderFull, { eventId: String(orderFull.external_reference), logTag: '[VIZZION_META_CAPI_FALLBACK]' }).catch(() => {});
+            await sendAndLogMetaCapiPurchase(orderFull, { eventId: String(orderFull.external_reference), logTag: '[KORVEX_META_CAPI_FALLBACK]' }).catch(() => {});
           }
           // Email via Edge Function (fire-and-forget)
           const supabaseUrl2 = process.env.SUPABASE_URL?.trim() || 'https://lrkmfhqetfwtdrfuginx.supabase.co';
@@ -386,9 +386,9 @@ export const getVizzionPaymentStatus = createServerFn({ method: 'POST' })
               transactionId: data.txid,
               metadata: { externalReference: order.external_reference },
             }),
-          }).catch((e) => console.error('[vizzion-status][pix-webhook-call-fallback]', e));
+          }).catch((e) => console.error('[korvex-status][pix-webhook-call-fallback]', e));
         }
-      } catch (e) { console.error('[vizzion-status][UTMify-paid-fallback]', e); }
+      } catch (e) { console.error('[korvex-status][UTMify-paid-fallback]', e); }
     }
 
     return {
@@ -428,7 +428,7 @@ async function sendOrderConfirmationEmail(order: any) {
   const fromEmail = tp._from_email || process.env.RESEND_FROM_EMAIL || 'Lumma FIT <noreply@suporte.lummafit.com>';
 
   if (!resendKey) {
-    console.error('[vizzion][email-confirmacao] RESEND_API_KEY ausente');
+    console.error('[korvex][email-confirmacao] RESEND_API_KEY ausente');
     await supabaseAdmin.from('orders').update({ order_email_sent_at: null } as any).eq('id', order.id);
     return;
   }
@@ -479,28 +479,28 @@ async function sendOrderConfirmationEmail(order: any) {
     });
 
     if (error) {
-      console.error('[vizzion][email-confirmacao] erro Resend', error);
+      console.error('[korvex][email-confirmacao] erro Resend', error);
       await supabaseAdmin.from('orders').update({ order_email_sent_at: null } as any).eq('id', order.id);
     } else {
-      console.log('[vizzion][email-confirmacao] enviado', data?.id, customerEmail);
+      console.log('[korvex][email-confirmacao] enviado', data?.id, customerEmail);
     }
   } catch (err) {
-    console.error('[vizzion][email-confirmacao] exceção', err);
+    console.error('[korvex][email-confirmacao] exceção', err);
     await supabaseAdmin.from('orders').update({ order_email_sent_at: null } as any).eq('id', order.id);
   }
 }
 
-// ============ Consulta direta na VizzionPay ============
-export async function consultVizzionTransaction(transactionId: string): Promise<{
+// ============ Consulta direta na Korvex ============
+export async function consultKorvexTransaction(transactionId: string): Promise<{
   status: 'pending' | 'confirmed' | 'expired' | 'unknown';
   raw: any;
 }> {
-  const pub = process.env.VIZZIONPAY_PUBLIC_KEY?.trim();
-  const sec = process.env.VIZZIONPAY_SECRET_KEY?.trim();
+  const pub = process.env.KORVEX_PUBLIC_KEY?.trim();
+  const sec = process.env.KORVEX_SECRET_KEY?.trim();
   if (!pub || !sec) return { status: 'unknown', raw: null };
 
   try {
-    const res = await fetch(`${VIZZION_BASE}/gateway/transactions?id=${encodeURIComponent(transactionId)}`, {
+    const res = await fetch(`${KORVEX_BASE}/gateway/transactions?id=${encodeURIComponent(transactionId)}`, {
       method: 'GET',
       headers: { 'x-public-key': pub, 'x-secret-key': sec, 'Content-Type': 'application/json' },
     });
@@ -520,7 +520,7 @@ export async function consultVizzionTransaction(transactionId: string): Promise<
     if (EXPIRED.has(statusRaw)) return { status: 'expired', raw: json };
     return { status: 'pending', raw: json };
   } catch (err) {
-    console.error('[vizzion-consult] erro', err);
+    console.error('[korvex-consult] erro', err);
     return { status: 'unknown', raw: null };
   }
 }

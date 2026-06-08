@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useMetaPixel } from '@/hooks/useMetaPixel';
 import { toast } from 'sonner';
 import { useServerFn } from '@tanstack/react-start';
-import { createVizzionPixPayment, warmVizzionPix } from '@/lib/vizzionpay.functions';
+import { createKorvexPixPayment, warmKorvexPix } from '@/lib/korvex.functions';
 import { captureTracking, newEventId } from '@/lib/tracking';
 import { CheckoutForm } from '@/components/CheckoutForm';
 import type { PixPaymentInfo } from '@/components/PixCheckoutDialog';
@@ -132,11 +132,11 @@ function LummaFitPage() {
     trackViewContent({ content_name: PRODUTOS[2].nome, content_ids: [PRODUTOS[2].contentId], content_type: 'product', value: PRODUTOS[2].preco, currency: 'BRL', event_id: newEventId('vc') });
   }, []);
 
-  const createPixPayment = useServerFn(createVizzionPixPayment);
-  const warmPixProxy = useServerFn(warmVizzionPix);
+  const createPixPayment = useServerFn(createKorvexPixPayment);
+  const warmPixProxy = useServerFn(warmKorvexPix);
 
   useEffect(() => {
-    const key = 'vizzion_warmed_lumma';
+    const key = 'korvex_warmed_lumma';
     const last = Number(window.sessionStorage.getItem(key) || 0);
     if (Date.now() - last < 10 * 60 * 1000) return;
     window.sessionStorage.setItem(key, String(Date.now()));
