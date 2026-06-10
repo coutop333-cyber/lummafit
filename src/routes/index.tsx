@@ -403,27 +403,34 @@ function LummaFitPage() {
                 {/* Kit 2 e Kit 1 — menor destaque */}
                 {PRODUTOS.filter(p => p.id !== 3).map((prod) => {
                   const sel = prod.id === selectedProdutoId;
+                  const isTwo = prod.id === 2;
                   return (
                     <button key={prod.id} onClick={() => setSelectedProdutoId(prod.id)}
-                      className="w-full text-left rounded-xl p-3 transition-all relative"
+                      className="w-full text-left rounded-xl transition-all relative"
                       style={{
-                        border: `1.5px solid ${sel ? ROSA : '#e5e7eb'}`,
-                        background: sel ? `${ROSA}06` : 'white',
-                        opacity: prod.id === 1 ? 0.85 : 1,
+                        border: `2px solid ${sel ? ROSA : isTwo ? '#f9a8d4' : '#e5e7eb'}`,
+                        background: sel ? `${ROSA}08` : 'white',
+                        padding: isTwo ? '0' : '12px',
+                        overflow: 'hidden',
                       }}>
-                      <div className="flex items-center justify-between">
+                      {isTwo && (
+                        <div className="px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white flex items-center gap-1" style={{ background: `linear-gradient(90deg, ${ROSA_ESCURO}, ${ROSA})` }}>
+                          👍 Boa escolha — R$ 22,00/unid.
+                        </div>
+                      )}
+                      <div className={`flex items-center justify-between ${isTwo ? 'p-3' : ''}`}>
                         <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-semibold text-gray-700 text-sm">{prod.nome}</p>
-                          </div>
-                          <p className="text-xs text-gray-400 mt-0.5">{prod.microcopy}</p>
+                          <p className="font-bold text-gray-800 text-sm">{prod.nome}</p>
+                          <p className="text-xs mt-0.5" style={{ color: isTwo ? ROSA : '#9ca3af' }}>
+                            {isTwo ? '2 calças · 2 cores à sua escolha' : prod.microcopy}
+                          </p>
                         </div>
                         <div className="text-right">
                           <p className="text-[10px] text-gray-400 line-through">R$ {prod.precoAntigo.toFixed(2).replace('.', ',')}</p>
-                          <p className="text-lg font-black" style={{ color: sel ? ROSA : '#6b7280', fontFamily: 'Archivo Black, sans-serif' }}>
+                          <p className="text-lg font-black" style={{ color: sel ? ROSA : isTwo ? ROSA_ESCURO : '#9ca3af', fontFamily: 'Archivo Black, sans-serif' }}>
                             R$ {prod.preco.toFixed(2).replace('.', ',')}
                           </p>
-                          <p className="text-[9px] text-gray-400">{prod.precoPorUnidade}</p>
+                          <p className="text-[9px]" style={{ color: isTwo ? '#9ca3af' : '#d1d5db' }}>{prod.precoPorUnidade}</p>
                         </div>
                       </div>
                       {sel && <Check className="absolute top-3 right-3 w-4 h-4" style={{ color: ROSA }} strokeWidth={3} />}
