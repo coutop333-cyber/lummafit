@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState, useEffect, useRef } from 'react';
-import { Star, Check, Truck, Shield, Package, Loader2, Flame, Clock, Lock, ChevronDown, MessageCircle, AlertTriangle } from 'lucide-react';
+import { Star, Check, Truck, Shield, Package, Loader2, Flame, Clock, Lock, ChevronDown, MessageCircle, AlertTriangle, BadgeCheck, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMetaPixel } from '@/hooks/useMetaPixel';
 import { toast } from 'sonner';
@@ -42,9 +42,11 @@ const PRODUTOS = [
     id: 1,
     nome: '1 Calça Flare Bailarina',
     descricao: '1 calça · escolha a cor',
-    preco: 29.90,
-    precoAntigo: 79.90,
+    microcopy: 'Teste uma unidade',
+    preco: 32.99,
+    precoAntigo: 89.90,
     desconto: 63,
+    precoPorUnidade: 'R$ 32,99/unid.',
     contentId: 'lummafit-1calca',
     quantity: '1 CALÇA FLARE LEGGING BAILARINA CINTURA ALTA LUMMA FIT',
     qtdCores: 1,
@@ -53,52 +55,53 @@ const PRODUTOS = [
     id: 2,
     nome: '2 Calças Flare Bailarina',
     descricao: '2 calças · escolha 2 cores diferentes',
-    preco: 39.90,
+    microcopy: 'Boa escolha',
+    preco: 43.99,
     precoAntigo: 159.80,
-    desconto: 75,
+    desconto: 72,
+    precoPorUnidade: 'R$ 22,00/unid.',
     contentId: 'lummafit-2calcas',
     quantity: '2 CALÇAS FLARE LEGGING BAILARINA CINTURA ALTA LUMMA FIT',
-    badge: 'Popular',
     qtdCores: 2,
   },
   {
     id: 3,
     nome: 'Kit 4 Cores — Coleção Completa',
     descricao: '1 preta + 1 azul + 1 verde + 1 cinza',
+    microcopy: 'Leve 4 cores pelo menor preço por unidade',
     preco: 65.97,
     precoAntigo: 319.60,
     desconto: 79,
+    precoPorUnidade: 'R$ 16,49/unid.',
     contentId: 'lummafit-kit4',
     quantity: 'KIT 4 CALÇAS FLARE LEGGING BAILARINA CINTURA ALTA LUMMA FIT',
-    badge: '⭐ Mais vendido',
+    badge: '⭐ MAIS VENDIDO',
     qtdCores: 4,
   },
 ];
 
 const REVIEWS = [
-  { name: 'Camila R.',   city: 'São Paulo · SP', rating: 5, text: 'Simplesmente PERFEITA! Cintura alta que define o corpo, flare lindo. Já pedi mais duas cores!', ago: '2 dias' },
-  { name: 'Fernanda M.', city: 'Rio · RJ',        rating: 5, text: 'Comprei o kit das 4 cores e não me arrependo. A qualidade é incrível e valoriza muito o corpo.', ago: '1 dia' },
-  { name: 'Juliana S.',  city: 'BH · MG',         rating: 5, text: 'Modelagem impecável, achei meu tamanho G perfeito. O tecido é grosso e não aparece nada!', ago: '3 dias' },
-  { name: 'Patrícia L.', city: 'Curitiba · PR',   rating: 5, text: 'Chegou super rápido e bem embalado. Durável, não desbota. Adorei!', ago: '5 horas' },
-  { name: 'Bruna O.',    city: 'Fortaleza · CE',  rating: 5, text: 'Já é a segunda compra. Durável e fica ótima tanto no dia a dia quanto na academia.', ago: '12 horas' },
-  { name: 'Larissa T.',  city: 'Porto Alegre · RS', rating: 5, text: 'Presentei minha mãe e ela adorou! O Kit 4 cores valeu muito a pena. Recomendo demais!', ago: '1 dia' },
+  { name: 'Camila R.',   city: 'São Paulo · SP', rating: 5, text: 'Achei que fosse transparente, mas o tecido é grosso e veste muito bem. Me surpreendeu demais!', ago: '2 dias' },
+  { name: 'Fernanda M.', city: 'Rio · RJ',        rating: 5, text: 'Comprei o kit com 4 cores e valeu muito mais a pena. Cada calça saiu por menos de R$ 17!', ago: '1 dia' },
+  { name: 'Juliana S.',  city: 'BH · MG',         rating: 5, text: 'A cintura modela sem apertar. Uso para sair e para treinar. Melhor compra que fiz esse ano.', ago: '3 dias' },
+  { name: 'Patrícia L.', city: 'Curitiba · PR',   rating: 5, text: 'Tenho quadril largo e mesmo assim ficou confortável e modelando super bem. Amei!', ago: '5 horas' },
+  { name: 'Bruna O.',    city: 'Fortaleza · CE',  rating: 5, text: 'Já é a segunda compra. O tecido é firme, não desbota e dura muito. Recomendo o kit de 4!', ago: '12 horas' },
+  { name: 'Larissa T.',  city: 'Porto Alegre · RS', rating: 5, text: 'Presentei minha mãe com o kit e ela ficou encantada. Qualidade incrível pelo preço!', ago: '1 dia' },
 ];
 
 export const Route = createFileRoute('/')({
   head: () => ({
     meta: [
       { title: 'Lumma FIT · Calça Flare Legging Bailarina Cintura Alta' },
-      { name: 'description', content: 'Calça Flare Legging Bailarina Cintura Alta Lumma FIT. Modela, valoriza e conquista. Frete grátis · Pix aprovado na hora.' },
+      { name: 'description', content: 'Cintura fina, pernas alongadas e zero transparência. A legging flare bailarina que modela o corpo. Frete grátis · Pix aprovado na hora.' },
     ],
   }),
   component: LummaFitPage,
 });
 
 function LummaFitPage() {
-  const [selectedProdutoId, setSelectedProdutoId] = useState(3);
-  // cor principal (1 calça e preview)
+  const [selectedProdutoId, setSelectedProdutoId] = useState(3); // Kit 4 por padrão
   const [selectedCorId, setSelectedCorId] = useState('preta');
-  // segunda cor (apenas para kit de 2)
   const [selectedCor2Id, setSelectedCor2Id] = useState('verde');
   const [selectedTamanho, setSelectedTamanho] = useState('');
   const [generating, setGenerating] = useState(false);
@@ -112,8 +115,6 @@ function LummaFitPage() {
   const PRODUTO = PRODUTOS.find(p => p.id === selectedProdutoId) ?? PRODUTOS[2];
   const COR = CORES.find(c => c.id === selectedCorId) ?? CORES[0];
   const COR2 = CORES.find(c => c.id === selectedCor2Id) ?? CORES[1];
-
-  // Imagem exibida no hero
   const heroImg = COR.img;
 
   const [timeLeft, setTimeLeft] = useState(20 * 60);
@@ -143,7 +144,6 @@ function LummaFitPage() {
     setTimeout(() => void warmPixProxy(), 1500);
   }, []);
 
-  // Descrição da variação para o checkout
   const getVariacao = () => {
     if (PRODUTO.qtdCores === 4) return `Preta + Azul + Verde + Cinza · Tamanho ${selectedTamanho}`;
     if (PRODUTO.qtdCores === 2) return `${COR.label} + ${COR2.label} · Tamanho ${selectedTamanho}`;
@@ -206,13 +206,13 @@ function LummaFitPage() {
     navigate({ to: '/obrigado', search: { ref: p.external_reference, id: String(p.id), value: p.transaction_amount, product: PRODUTO.nome, status: 'approved' }, replace: true });
   };
 
-  // Altura da barra de urgência em px (usada para calcular o top do header)
   const URGENCY_H = 40;
+  const kitProd = PRODUTOS.find(p => p.id === 3)!;
 
   return (
     <div className="min-h-screen bg-white">
 
-      {/* BARRA DE URGÊNCIA — sticky top-0 */}
+      {/* BARRA DE URGÊNCIA */}
       <div className="sticky top-0 z-50 text-white" style={{ background: `linear-gradient(90deg, #8b0036, ${ROSA}, #8b0036)` }}>
         <div className="py-2 px-4 text-center">
           <span className="flex items-center justify-center gap-3 flex-wrap text-sm font-black uppercase tracking-wide">
@@ -226,7 +226,7 @@ function LummaFitPage() {
         </div>
       </div>
 
-      {/* HEADER — colado logo abaixo da barra */}
+      {/* HEADER */}
       <header className="bg-white border-b-2 sticky z-40" style={{ borderColor: ROSA, top: `${URGENCY_H}px` }}>
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-2xl font-black" style={{ fontFamily: 'Archivo Black, sans-serif', color: PRETO }}>
@@ -243,21 +243,19 @@ function LummaFitPage() {
 
       <main className="max-w-5xl mx-auto px-4 py-6">
 
-        {/* HEADLINE AGRESSIVO */}
+        {/* HEADLINE */}
         <div className="text-center mb-6">
-          {/* Prova social no topo */}
           <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-3 text-xs font-bold" style={{ backgroundColor: `${ROSA}15`, color: ROSA, border: `1px solid ${ROSA}30` }}>
             <div className="flex">{[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />)}</div>
             4.9 · +1.847 clientes satisfeitas
           </div>
           <h1 className="text-3xl md:text-5xl font-black leading-tight mb-3" style={{ fontFamily: 'Archivo Black, sans-serif', color: PRETO }}>
-            A calça que faz todas
-            <span className="block" style={{ color: ROSA }}>perguntarem onde comprou</span>
+            Cintura fina, pernas alongadas
+            <span className="block" style={{ color: ROSA }}>e zero transparência.</span>
           </h1>
-          <p className="text-gray-600 text-base max-w-lg mx-auto">
-            Flare Legging Bailarina Cintura Alta — modela, afina a cintura e alonga as pernas. <strong>Menos de R$17 por peça</strong> no kit completo.
+          <p className="text-gray-600 text-base max-w-xl mx-auto">
+            A legging flare bailarina que <strong>modela o corpo</strong>, valoriza a cintura e deixa qualquer look com aparência mais elegante — com frete grátis e Pix na hora.
           </p>
-          {/* Urgência inline */}
           <div className="inline-flex items-center gap-2 mt-4 rounded-xl px-4 py-2 text-sm font-bold text-white" style={{ backgroundColor: ROSA }}>
             <AlertTriangle className="w-4 h-4" /> Apenas {unitsLeft} unidades restantes hoje
           </div>
@@ -277,7 +275,6 @@ function LummaFitPage() {
               />
             </div>
 
-            {/* Miniaturas de cor — visível só no desktop */}
             {PRODUTO.qtdCores !== 4 && (
               <div className="hidden lg:block bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">
@@ -294,8 +291,6 @@ function LummaFitPage() {
                 </div>
               </div>
             )}
-
-            {/* Segunda cor — visível só no desktop */}
             {PRODUTO.qtdCores === 2 && (
               <div className="hidden lg:block bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">
@@ -312,8 +307,6 @@ function LummaFitPage() {
                 </div>
               </div>
             )}
-
-            {/* Kit 4 — visível só no desktop */}
             {PRODUTO.qtdCores === 4 && (
               <div className="hidden lg:block bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">Kit inclui as 4 cores:</p>
@@ -328,7 +321,6 @@ function LummaFitPage() {
               </div>
             )}
 
-            {/* Selos */}
             <div className="grid grid-cols-3 gap-2">
               {[
                 { icon: Shield, label: 'Original', sub: '100% Garantido' },
@@ -347,29 +339,91 @@ function LummaFitPage() {
           {/* OFERTA */}
           <div className="space-y-4">
 
-            {/* Opções */}
+            {/* OPÇÕES */}
             <div>
               <p className="text-xs font-black uppercase tracking-widest mb-2 text-gray-500">Escolha sua opção:</p>
               <div className="space-y-2">
-                {PRODUTOS.map((prod) => {
+
+                {/* KIT 4 — destaque máximo */}
+                {(() => {
+                  const prod = PRODUTOS.find(p => p.id === 3)!;
+                  const sel = selectedProdutoId === 3;
+                  return (
+                    <button
+                      onClick={() => setSelectedProdutoId(3)}
+                      className="w-full text-left rounded-2xl transition-all relative overflow-hidden"
+                      style={{
+                        border: `3px solid ${sel ? ROSA : ROSA + '80'}`,
+                        background: sel ? `${ROSA}12` : `${ROSA}06`,
+                        boxShadow: sel ? `0 0 0 2px ${ROSA}30, 0 6px 20px ${ROSA}20` : `0 2px 8px ${ROSA}10`,
+                      }}
+                    >
+                      {/* Faixa topo */}
+                      <div className="flex items-center justify-between px-4 py-1.5" style={{ background: `linear-gradient(90deg, ${ROSA_ESCURO}, ${ROSA})` }}>
+                        <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-1.5">
+                          <Star className="w-3 h-3 fill-yellow-300 text-yellow-300" /> MAIS VENDIDO · MELHOR CUSTO-BENEFÍCIO
+                        </span>
+                        <span className="text-[10px] font-black text-white bg-white/20 px-2 py-0.5 rounded-full">79% OFF</span>
+                      </div>
+
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <p className="font-black text-gray-900 text-base" style={{ fontFamily: 'Archivo Black, sans-serif', color: PRETO }}>
+                              {prod.nome}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5">{prod.descricao}</p>
+                            <p className="text-xs font-black mt-1.5" style={{ color: ROSA }}>{prod.microcopy}</p>
+                            <div className="flex items-center gap-2 mt-2 flex-wrap">
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: '#16a34a' }}>
+                                ✅ MELHOR CUSTO-BENEFÍCIO
+                              </span>
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-full" style={{ backgroundColor: '#fde68a', color: '#92400e' }}>
+                                🔥 {prod.precoPorUnidade}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-xs text-gray-400 line-through">R$ {prod.precoAntigo.toFixed(2).replace('.', ',')}</p>
+                            <p className="text-2xl font-black" style={{ color: ROSA, fontFamily: 'Archivo Black, sans-serif' }}>
+                              R$ {prod.preco.toFixed(2).replace('.', ',')}
+                            </p>
+                          </div>
+                        </div>
+                        {sel && (
+                          <div className="mt-3 flex items-center gap-1.5 text-xs font-black rounded-xl px-3 py-2" style={{ backgroundColor: `${ROSA}15`, color: ROSA }}>
+                            <Check className="w-3.5 h-3.5" strokeWidth={3} /> Selecionado — melhor opção!
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })()}
+
+                {/* Kit 2 e Kit 1 — menor destaque */}
+                {PRODUTOS.filter(p => p.id !== 3).map((prod) => {
                   const sel = prod.id === selectedProdutoId;
                   return (
                     <button key={prod.id} onClick={() => setSelectedProdutoId(prod.id)}
-                      className="w-full text-left rounded-xl p-3.5 transition-all relative"
-                      style={{ border: `2px solid ${sel ? ROSA : '#e5e7eb'}`, background: sel ? `${ROSA}08` : 'white', boxShadow: sel ? `0 0 0 1px ${ROSA}30` : 'none' }}>
-                      {prod.badge && (
-                        <span className="absolute -top-2.5 left-3 text-[10px] font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: ROSA }}>{prod.badge}</span>
-                      )}
+                      className="w-full text-left rounded-xl p-3 transition-all relative"
+                      style={{
+                        border: `1.5px solid ${sel ? ROSA : '#e5e7eb'}`,
+                        background: sel ? `${ROSA}06` : 'white',
+                        opacity: prod.id === 1 ? 0.85 : 1,
+                      }}>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-black text-gray-900 text-sm" style={{ fontFamily: 'Archivo Black, sans-serif' }}>{prod.nome}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{prod.descricao}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-gray-700 text-sm">{prod.nome}</p>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-0.5">{prod.microcopy}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs text-gray-400 line-through">R$ {prod.precoAntigo.toFixed(2).replace('.', ',')}</p>
-                          <p className="text-xl font-black" style={{ color: ROSA, fontFamily: 'Archivo Black, sans-serif' }}>
+                          <p className="text-[10px] text-gray-400 line-through">R$ {prod.precoAntigo.toFixed(2).replace('.', ',')}</p>
+                          <p className="text-lg font-black" style={{ color: sel ? ROSA : '#6b7280', fontFamily: 'Archivo Black, sans-serif' }}>
                             R$ {prod.preco.toFixed(2).replace('.', ',')}
                           </p>
+                          <p className="text-[9px] text-gray-400">{prod.precoPorUnidade}</p>
                         </div>
                       </div>
                       {sel && <Check className="absolute top-3 right-3 w-4 h-4" style={{ color: ROSA }} strokeWidth={3} />}
@@ -379,7 +433,30 @@ function LummaFitPage() {
               </div>
             </div>
 
-            {/* Tamanho */}
+            {/* BLOCO COMPARATIVO */}
+            <div className="rounded-2xl p-4" style={{ background: 'linear-gradient(135deg, #fdf2f8, #fce7f3)', border: `1.5px solid ${ROSA}30` }}>
+              <p className="font-black text-sm mb-3" style={{ color: ROSA }}>💡 Por que a maioria escolhe o Kit 4 Cores?</p>
+              <ul className="space-y-2">
+                {[
+                  'Sai por apenas R$ 16,49 cada — o menor preço por peça',
+                  'Você recebe todas as 4 cores mais usadas no dia a dia',
+                  'Evita pagar mais caro depois comprando separado',
+                  'Ideal para academia, trabalho, viagem e dia a dia',
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-gray-700">
+                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ backgroundColor: ROSA }}>
+                      <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                    </div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-3 rounded-xl px-3 py-2 text-xs font-black text-center" style={{ background: ROSA, color: 'white' }}>
+                🔥 Melhor escolha: 4 calças por menos que o preço de 2 em muitas lojas
+              </div>
+            </div>
+
+            {/* TAMANHO */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-black uppercase tracking-widest text-gray-500">Tamanho:</p>
@@ -421,7 +498,7 @@ function LummaFitPage() {
               )}
             </div>
 
-            {/* CORES — visível só no mobile, após o tamanho */}
+            {/* CORES MOBILE */}
             {PRODUTO.qtdCores !== 4 && (
               <div className="lg:hidden bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <p className="text-xs font-black uppercase tracking-widest mb-3 text-gray-500">
@@ -474,11 +551,14 @@ function LummaFitPage() {
                 <span className="text-sm line-through opacity-70">De R$ {PRODUTO.precoAntigo.toFixed(2).replace('.', ',')}</span>
                 <span className="text-xs font-black px-2 py-0.5 rounded-full bg-white" style={{ color: ROSA }}>{PRODUTO.desconto}% OFF</span>
               </div>
-              <div className="flex items-baseline gap-1 mb-2">
+              <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-xl font-bold">R$</span>
                 <span className="text-6xl font-black" style={{ fontFamily: 'Archivo Black, sans-serif', color: '#fde68a' }}>{Math.floor(PRODUTO.preco)}</span>
                 <span className="text-2xl font-bold" style={{ color: '#fde68a' }}>,{PRODUTO.preco.toFixed(2).split('.')[1]}</span>
               </div>
+              {PRODUTO.id === 3 && (
+                <p className="text-xs font-black mb-2 opacity-90">= R$ 16,49 por calça · menor preço por unidade</p>
+              )}
               <p className="text-xs opacity-80 mb-3">Você economiza R$ {(PRODUTO.precoAntigo - PRODUTO.preco).toFixed(2).replace('.', ',')} nessa compra</p>
               <div className="flex items-center gap-2 rounded-xl px-3 py-2 bg-white/15">
                 <img src={pixLogo} alt="Pix" className="h-7 w-7 bg-white rounded-full p-1 object-contain" />
@@ -502,8 +582,15 @@ function LummaFitPage() {
               <span>Apenas <strong>{unitsLeft} unidades</strong> em estoque hoje · expira em {mm}:{ss}</span>
             </div>
 
+            {/* BULLETS */}
             <ul className="space-y-2 bg-white rounded-xl p-4 border border-gray-100">
-              {['Cintura alta modeladora — define e sustenta', 'Flare bailarina — alonga as pernas visualmente', 'Tecido grosso, não transparece', 'Confortável para o dia a dia e academia', 'Disponível em 4 cores exclusivas'].map((t, i) => (
+              {[
+                'Modela sem apertar — cintura alta sustentada',
+                'Alonga visualmente as pernas com corte flare',
+                'Tecido grosso, confortável e sem transparência',
+                'Ideal para treino, passeio e dia a dia',
+                'Kit com 4 cores para combinar com qualquer look',
+              ].map((t, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm text-gray-800">
                   <div className="flex h-5 w-5 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: ROSA }}>
                     <Check className="h-3 w-3 text-white" strokeWidth={4} />
@@ -518,14 +605,39 @@ function LummaFitPage() {
               <Button disabled={generating} onClick={() => handleBuyClick()}
                 className="w-full py-7 text-lg font-black uppercase text-white active:scale-[0.98] transition-transform"
                 style={{ background: `linear-gradient(135deg, ${ROSA}, ${ROSA_ESCURO})`, fontFamily: 'Archivo Black, sans-serif', boxShadow: `0 8px 25px ${ROSA}55` }}>
-                {generating ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Gerando Pix...</> : `💳 QUERO MINHA CALÇA — R$ ${PRODUTO.preco.toFixed(2).replace('.', ',')}`}
+                {generating
+                  ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Gerando Pix...</>
+                  : selectedProdutoId === 3
+                  ? `🏆 QUERO O KIT COMPLETO — R$ 65,97`
+                  : `💳 QUERO MINHA CALÇA — R$ ${PRODUTO.preco.toFixed(2).replace('.', ',')}`}
               </Button>
               <div className="flex items-center justify-center gap-4 text-[11px] text-gray-500">
                 <span className="flex items-center gap-1"><Lock className="w-3 h-3 text-green-600" />Pagamento seguro</span>
                 <span className="flex items-center gap-1"><Truck className="w-3 h-3 text-green-600" />Frete grátis</span>
-                <span className="flex items-center gap-1"><Package className="w-3 h-3 text-green-600" />Envio em 24h</span>
+                <span className="flex items-center gap-1"><Package className="w-3 h-3 text-green-600" />Envio com rastreio</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* COMPRA 100% SEGURA */}
+        <div className="mb-10 rounded-2xl p-6 bg-gray-50 border border-gray-200">
+          <h2 className="text-lg font-black text-center mb-4 flex items-center justify-center gap-2" style={{ color: PRETO }}>
+            <BadgeCheck className="w-5 h-5 text-green-600" /> Compra 100% Segura
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { icon: Truck,       titulo: 'Frete Grátis',      sub: 'Para todo o Brasil' },
+              { icon: Package,     titulo: 'Envio Rastreado',   sub: 'Acompanhe o pedido' },
+              { icon: Zap,         titulo: 'Pix Aprovado',      sub: 'Na hora, sem espera' },
+              { icon: MessageCircle, titulo: 'Suporte',         sub: 'Troca de tamanho' },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center gap-1.5 bg-white rounded-xl p-3 text-center border border-gray-100 shadow-sm">
+                <item.icon className="w-6 h-6" style={{ color: ROSA }} />
+                <p className="text-xs font-black text-gray-900">{item.titulo}</p>
+                <p className="text-[10px] text-gray-500">{item.sub}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -576,7 +688,7 @@ function LummaFitPage() {
           </div>
         </div>
 
-        {/* CTA FINAL */}
+        {/* CTA FINAL — Kit 4 em destaque */}
         <div className="mb-8 rounded-2xl overflow-hidden shadow-xl text-white text-center" style={{ background: `linear-gradient(135deg, ${PRETO}, #333)`, border: `3px solid ${ROSA}` }}>
           <div className="py-3 font-black text-sm flex items-center justify-center gap-2" style={{ backgroundColor: ROSA }}>
             <Flame className="w-4 h-4" /> ÚLTIMAS {unitsLeft} UNIDADES · EXPIRA EM {mm}:{ss}
@@ -584,14 +696,24 @@ function LummaFitPage() {
           <div className="p-7">
             <h3 className="text-2xl font-black mb-2" style={{ fontFamily: 'Archivo Black, sans-serif' }}>Garanta a sua agora</h3>
             <p className="text-white/80 text-sm mb-6">Frete grátis · Pix aprovado na hora · Envio em 24h</p>
-            <div className="flex flex-col gap-3 max-w-xs mx-auto">
-              {PRODUTOS.map((prod) => (
-                <Button key={prod.id} disabled={generating} onClick={() => { setSelectedProdutoId(prod.id); handleBuyClick(prod.id); }}
-                  className="w-full py-4 text-sm font-black uppercase text-white active:scale-[0.98]"
-                  style={{ background: prod.id === 3 ? `linear-gradient(135deg, ${ROSA}, ${ROSA_ESCURO})` : 'rgba(255,255,255,0.1)', border: prod.id === 3 ? 'none' : '1px solid rgba(255,255,255,0.2)', boxShadow: prod.id === 3 ? `0 6px 20px ${ROSA}55` : 'none' }}>
-                  {prod.badge ? `${prod.badge} · ` : ''}{prod.descricao} — R$ {prod.preco.toFixed(2).replace('.', ',')}
-                </Button>
-              ))}
+            <div className="flex flex-col gap-3 max-w-sm mx-auto">
+              {/* Kit 4 — botão principal */}
+              <Button disabled={generating} onClick={() => { setSelectedProdutoId(3); handleBuyClick(3); }}
+                className="w-full py-6 text-base font-black uppercase text-white active:scale-[0.98]"
+                style={{ background: `linear-gradient(135deg, ${ROSA}, ${ROSA_ESCURO})`, boxShadow: `0 6px 20px ${ROSA}55`, fontSize: '1rem' }}>
+                🏆 KIT 4 CORES — R$ 65,97 · R$ 16,49/unid.
+              </Button>
+              {/* Kit 2 */}
+              <Button disabled={generating} onClick={() => { setSelectedProdutoId(2); handleBuyClick(2); }}
+                className="w-full py-4 text-sm font-bold uppercase text-white active:scale-[0.98]"
+                style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                2 calças — R$ 43,99
+              </Button>
+              {/* Kit 1 — menor destaque */}
+              <button disabled={generating} onClick={() => { setSelectedProdutoId(1); handleBuyClick(1); }}
+                className="w-full py-2 text-xs font-semibold text-white/50 hover:text-white/70 transition-colors">
+                ou 1 calça por R$ 32,99
+              </button>
             </div>
           </div>
         </div>
@@ -625,7 +747,7 @@ function LummaFitPage() {
         <p>© 2026 Lumma FIT · Moda Feminina · Compra 100% segura</p>
       </footer>
 
-      {/* COMPRA TESTE — oculto no final */}
+      {/* COMPRA TESTE */}
       <div className="max-w-5xl mx-auto px-4 pb-6">
         <details className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
           <summary className="px-4 py-3 text-xs text-gray-400 cursor-pointer select-none list-none flex items-center justify-between hover:text-gray-500">
@@ -647,7 +769,6 @@ function LummaFitPage() {
                   unitPrice: 5.00,
                   price: 5.00,
                 });
-                // override kit para teste
                 (window as any).__lumma_test_mode = true;
                 setFormOpen(true);
               }}
@@ -662,7 +783,6 @@ function LummaFitPage() {
 
       {/* MOBILE CTA FIXO */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 shadow-[0_-8px_30px_rgba(214,51,132,0.25)]">
-        {/* Barra de urgência no topo do CTA */}
         <div className="py-1.5 px-4 text-center text-[11px] font-black uppercase text-white flex items-center justify-center gap-2" style={{ backgroundColor: '#8b0036' }}>
           <Flame className="w-3 h-3 animate-pulse" style={{ color: '#fde68a' }} />
           <span>⏰ Expira em <strong style={{ color: '#fde68a' }}>{mm}:{ss}</strong> · só {unitsLeft} unidades</span>
@@ -679,14 +799,19 @@ function LummaFitPage() {
             </div>
             <div className="text-right">
               <p className="text-[9px] text-gray-500">Frete grátis</p>
-              <p className="text-[9px] text-gray-500">Envio em 24h</p>
+              <p className="text-[9px]" style={{ color: ROSA }}>{PRODUTO.precoPorUnidade}</p>
             </div>
           </div>
           <Button disabled={generating} onClick={() => handleBuyClick()}
             className="w-full py-5 text-base font-black uppercase text-white active:scale-[0.98]"
             style={{ background: `linear-gradient(135deg, ${ROSA}, ${ROSA_ESCURO})`, fontFamily: 'Archivo Black, sans-serif', boxShadow: `0 4px 20px ${ROSA}55` }}>
-            {generating ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Gerando Pix...</> : '💳 GARANTIR MINHA CALÇA AGORA'}
+            {generating
+              ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Gerando Pix...</>
+              : selectedProdutoId === 3
+              ? '🏆 QUERO O KIT COMPLETO AGORA'
+              : '💳 GARANTIR MINHA CALÇA AGORA'}
           </Button>
+          <p className="text-center text-[10px] text-gray-400 mt-1.5">Pagamento seguro • Frete grátis • Envio com rastreio</p>
         </div>
       </div>
 
