@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WideLegRouteImport } from './routes/wide-leg'
 import { Route as ObrigadoRouteImport } from './routes/obrigado'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as RastreioCodigoRouteImport } from './routes/rastreio.$codigo'
 import { Route as ApiPublicPedidoStatusRouteImport } from './routes/api/public/pedido-status'
 
+const WideLegRoute = WideLegRouteImport.update({
+  id: '/wide-leg',
+  path: '/wide-leg',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ObrigadoRoute = ObrigadoRouteImport.update({
   id: '/obrigado',
   path: '/obrigado',
@@ -44,6 +50,7 @@ const ApiPublicPedidoStatusRoute = ApiPublicPedidoStatusRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
+  '/wide-leg': typeof WideLegRoute
   '/rastreio/$codigo': typeof RastreioCodigoRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
+  '/wide-leg': typeof WideLegRoute
   '/rastreio/$codigo': typeof RastreioCodigoRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
@@ -59,6 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/obrigado': typeof ObrigadoRoute
+  '/wide-leg': typeof WideLegRoute
   '/rastreio/$codigo': typeof RastreioCodigoRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/pedido-status': typeof ApiPublicPedidoStatusRoute
@@ -68,6 +77,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/obrigado'
+    | '/wide-leg'
     | '/rastreio/$codigo'
     | '/admin/'
     | '/api/public/pedido-status'
@@ -75,6 +85,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/obrigado'
+    | '/wide-leg'
     | '/rastreio/$codigo'
     | '/admin'
     | '/api/public/pedido-status'
@@ -82,6 +93,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/obrigado'
+    | '/wide-leg'
     | '/rastreio/$codigo'
     | '/admin/'
     | '/api/public/pedido-status'
@@ -90,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ObrigadoRoute: typeof ObrigadoRoute
+  WideLegRoute: typeof WideLegRoute
   RastreioCodigoRoute: typeof RastreioCodigoRoute
   AdminIndexRoute: typeof AdminIndexRoute
   ApiPublicPedidoStatusRoute: typeof ApiPublicPedidoStatusRoute
@@ -97,6 +110,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wide-leg': {
+      id: '/wide-leg'
+      path: '/wide-leg'
+      fullPath: '/wide-leg'
+      preLoaderRoute: typeof WideLegRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/obrigado': {
       id: '/obrigado'
       path: '/obrigado'
@@ -138,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ObrigadoRoute: ObrigadoRoute,
+  WideLegRoute: WideLegRoute,
   RastreioCodigoRoute: RastreioCodigoRoute,
   AdminIndexRoute: AdminIndexRoute,
   ApiPublicPedidoStatusRoute: ApiPublicPedidoStatusRoute,
