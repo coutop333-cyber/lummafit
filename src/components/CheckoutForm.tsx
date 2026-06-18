@@ -4,8 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { ShieldCheck, Lock } from 'lucide-react';
-import mercadoPagoLogo from '@/assets/mercado-pago.png';
+import { ShieldCheck, Lock, Truck, Clock, Star } from 'lucide-react';
+import pagarMeLogo from '@/assets/logo-pagarme.png';
 
 interface Props {
   open: boolean;
@@ -124,6 +124,13 @@ export function CheckoutForm({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
+        {/* URGÊNCIA */}
+        <div className="mt-3 flex items-center gap-2 rounded-lg px-3 py-2.5 text-white" style={{ background: 'linear-gradient(90deg, #b91c1c, #dc2626)' }}>
+          <Clock className="h-4 w-4 shrink-0 animate-pulse" style={{ color: '#fde68a' }} />
+          <p className="text-xs font-black uppercase tracking-wide">Finalize agora — estoque limitado hoje</p>
+        </div>
+
+        {/* COMPRA SEGURA */}
         <div className="mt-3 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2.5">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#17a34a] text-white">
             <ShieldCheck className="h-5 w-5" />
@@ -131,29 +138,45 @@ export function CheckoutForm({
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold leading-tight" style={{ fontFamily: 'Archivo Black, sans-serif', color: primaryColor }}>Compra 100% Segura</p>
             <p className="text-[11px] text-gray-600 flex items-center gap-1 mt-0.5">
-              <Lock className="h-3 w-3" /> Seus dados são criptografados e protegidos
+              <Lock className="h-3 w-3" /> Dados criptografados · SSL 256 bits
             </p>
           </div>
           <span className="hidden sm:inline-flex shrink-0 items-center rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide border border-gray-200" style={{ color: primaryColor }}>SSL</span>
         </div>
 
-        <div className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50/50 to-white p-4 shadow-sm">
+        {/* PAGAR.ME */}
+        <div className="mt-3 flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-1.5">
-              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#009ee3] text-white">
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#007b40] text-white">
                 <ShieldCheck className="h-3 w-3" />
               </div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#009ee3]">Checkout Protegido</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#007b40]">Checkout Protegido</span>
             </div>
-            <p className="text-[14px] font-black text-[#0c2340] mt-1" style={{ fontFamily: 'Archivo Black, sans-serif' }}>Pague via Mercado Pago</p>
-            <p className="text-[10px] text-gray-500 leading-tight">Criptografia SSL de ponta a ponta. <br/> Seu pagamento é processado instantaneamente.</p>
+            <p className="text-[14px] font-black text-gray-900 mt-1" style={{ fontFamily: 'Archivo Black, sans-serif' }}>Pague com segurança via Stone</p>
+            <p className="text-[10px] text-gray-500 leading-tight">Criptografia SSL de ponta a ponta.<br/>Pix aprovado instantaneamente.</p>
           </div>
           <div className="flex shrink-0 flex-col items-center gap-1">
-            <div className="flex items-center justify-center rounded-xl bg-white border border-blue-50 p-2.5 shadow-sm">
-              <img src={mercadoPagoLogo} alt="Mercado Pago" className="h-8 w-auto" />
+            <div className="flex items-center justify-center rounded-xl bg-white border border-gray-100 px-3 py-2 shadow-sm">
+              <img src={pagarMeLogo} alt="Pagar.me Stone" className="h-12 w-auto" />
             </div>
             <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Parceiro Oficial</span>
           </div>
+        </div>
+
+        {/* PROVA SOCIAL */}
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {[
+            { icon: Star,        text: '+980 pedidos',    sub: 'essa semana' },
+            { icon: Truck,       text: 'Envio em 24h',   sub: 'após confirmação' },
+            { icon: ShieldCheck, text: 'Troca garantida', sub: 'em 7 dias' },
+          ].map((item, i) => (
+            <div key={i} className="flex flex-col items-center gap-1 rounded-xl bg-gray-50 border border-gray-100 py-2.5 px-1 text-center">
+              <item.icon className="w-4 h-4" style={{ color: primaryColor }} />
+              <p className="text-[10px] font-black text-gray-900 leading-tight">{item.text}</p>
+              <p className="text-[9px] text-gray-500">{item.sub}</p>
+            </div>
+          ))}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
@@ -202,9 +225,20 @@ export function CheckoutForm({
               <Input id="bairro" value={data.bairro} onChange={(e) => update('bairro', e.target.value)} placeholder="Bela Vista" required />
             </div>
           </div>
-          <Button type="submit" className="w-full py-6 text-base font-bold uppercase tracking-wide mt-2" style={{ backgroundColor: primaryColor }}>
+          <Button type="submit" className="w-full py-6 text-base font-black uppercase tracking-wide mt-2 text-white" style={{ background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}cc)`, boxShadow: `0 6px 20px ${primaryColor}44` }}>
             {submitLabel}
           </Button>
+          <div className="flex items-center justify-center gap-3 mt-2">
+            {[
+              { icon: Lock,       text: 'Pagamento seguro' },
+              { icon: ShieldCheck, text: 'Dados protegidos' },
+              { icon: Truck,      text: 'Frete grátis' },
+            ].map((item, i) => (
+              <span key={i} className="flex items-center gap-1 text-[10px] text-gray-400">
+                <item.icon className="w-3 h-3 text-green-500" /> {item.text}
+              </span>
+            ))}
+          </div>
         </form>
       </DialogContent>
     </Dialog>

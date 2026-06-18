@@ -111,6 +111,7 @@ function LummaFitPage() {
   const [showSizeGuide, setShowSizeGuide] = useState(true);
   const formDataRef = useRef<any>(null);
   const eventIdRef = useRef<string | null>(null);
+  const shippingCostRef = useRef(0);
 
   const PRODUTO = PRODUTOS.find(p => p.id === selectedProdutoId) ?? PRODUTOS[2];
   const COR = CORES.find(c => c.id === selectedCorId) ?? CORES[0];
@@ -185,7 +186,7 @@ function LummaFitPage() {
         data: {
           kitId: isTest ? 99 : PRODUTO.id,
           title: isTest ? '1 CALÇA TESTE LUMMA FIT' : PRODUTO.quantity,
-          unitPrice: isTest ? 5.00 : PRODUTO.preco,
+          unitPrice: isTest ? 5.00 : (PRODUTO.preco + shippingCostRef.current),
           externalReference: eventId,
           payerEmail: fd.email, payerName: fd.nome, payerPhone: fd.telefone, payerDocument: fd.cpf,
           tracking: { ...tracking, ...(fd.nome ? { name: fd.nome } : {}), ...(fd.email ? { email: fd.email } : {}), ...(fd.telefone ? { phone: fd.telefone } : {}) } as any,
@@ -831,7 +832,8 @@ function LummaFitPage() {
         headerEyebrow="👗 Lumma FIT" title={PRODUTO.nome}
         description={getVariacao()}
         primaryColor={ROSA} accentColor="#fde68a"
-        payButtonLabel={(total) => `💳 Pagar R$ ${total} com Pix`} />
+        payButtonLabel={(total) => `💳 Pagar R$ ${total} com Pix`}
+        onShippingChange={(cost) => { shippingCostRef.current = cost; }} />
     </div>
   );
 }

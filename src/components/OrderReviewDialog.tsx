@@ -30,6 +30,7 @@ interface Props {
   accentColor?: string;
   headerEyebrow?: string;
   payButtonLabel?: (total: string) => string;
+  onShippingChange?: (cost: number) => void;
 }
 
 export function OrderReviewDialog({
@@ -44,6 +45,7 @@ export function OrderReviewDialog({
   accentColor,
   headerEyebrow,
   payButtonLabel,
+  onShippingChange,
 }: Props) {
   const primary = primaryColor;
   const [generating, setGenerating] = useState(false);
@@ -56,6 +58,10 @@ export function OrderReviewDialog({
   const addPaymentInfoFiredRef = useRef(false);
   const [shipping, setShipping] = useState<'gratis' | 'expresso'>('gratis');
   const shippingCost = shipping === 'expresso' ? 16.9 : 0;
+  const handleShippingChange = (v: 'gratis' | 'expresso') => {
+    setShipping(v);
+    onShippingChange?.(v === 'expresso' ? 16.9 : 0);
+  };
 
   useEffect(() => {
     if (open) {
@@ -184,7 +190,7 @@ export function OrderReviewDialog({
 
                 <button
                   type="button"
-                  onClick={() => setShipping('gratis')}
+                  onClick={() => handleShippingChange('gratis')}
                   className="w-full text-left rounded-xl border-2 p-3 bg-white transition flex items-center gap-3 hover:border-gray-300"
                   style={{ borderColor: shipping === 'gratis' ? primary : '#e5e7eb' }}
                 >
@@ -205,7 +211,7 @@ export function OrderReviewDialog({
 
                 <button
                   type="button"
-                  onClick={() => setShipping('expresso')}
+                  onClick={() => handleShippingChange('expresso')}
                   className="w-full text-left rounded-xl border-2 p-3 bg-white transition flex items-center gap-3 hover:border-gray-300"
                   style={{ borderColor: shipping === 'expresso' ? primary : '#e5e7eb' }}
                 >
