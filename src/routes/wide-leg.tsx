@@ -106,6 +106,7 @@ function WideLeqPage() {
   const [heroImg, setHeroImg] = useState(imgHero);
   const formDataRef = useRef<any>(null);
   const eventIdRef = useRef<string | null>(null);
+  const shippingCostRef = useRef(0);
 
   const PRODUTO = PRODUTOS.find(p => p.id === selectedProdutoId) ?? PRODUTOS[1];
   const COR  = CORES.find(c => c.id === selectedCorId)  ?? CORES[0];
@@ -178,7 +179,7 @@ function WideLeqPage() {
         data: {
           kitId: PRODUTO.id,
           title: PRODUTO.quantity,
-          unitPrice: PRODUTO.preco,
+          unitPrice: PRODUTO.preco + shippingCostRef.current,
           externalReference: eventId,
           payerEmail: fd.email, payerName: fd.nome, payerPhone: fd.telefone, payerDocument: fd.cpf,
           tracking: { ...tracking, ...(fd.nome ? { name: fd.nome } : {}), ...(fd.email ? { email: fd.email } : {}), ...(fd.telefone ? { phone: fd.telefone } : {}) } as any,
@@ -657,7 +658,8 @@ function WideLeqPage() {
         onPay={handleCreatePixPayment} onApproved={handlePixApproved}
         headerEyebrow="👗 Lumma FIT" title={PRODUTO.nome} description={getVariacao()}
         primaryColor={DARK} accentColor={GOLD}
-        payButtonLabel={(total) => `💳 Pagar R$ ${total} com Pix`} />
+        payButtonLabel={(total) => `💳 Pagar R$ ${total} com Pix`}
+        onShippingChange={(cost) => { shippingCostRef.current = cost; }} />
     </div>
   );
 }
