@@ -17,6 +17,7 @@ import imgClaroB from '@/assets/wide-jeans-claro-costas.jpg';
 import imgPreto from '@/assets/wide-jeans-preto.jpg';
 import imgEscuro from '@/assets/wide-jeans-escuro.jpg';
 import imgAreia from '@/assets/wide-jeans-areia.jpg';
+import imgHero from '@/assets/wide-jeans-hero.jpg';
 
 const ROSA = '#d63384';
 const ROSA_ESCURO = '#b02a6e';
@@ -96,7 +97,7 @@ function WideLeqPage() {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewProduct, setReviewProduct] = useState<OrderProduct | null>(null);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
-  const [heroImg, setHeroImg] = useState(imgClaro);
+  const [heroImg, setHeroImg] = useState(imgHero);
   const formDataRef = useRef<any>(null);
   const eventIdRef = useRef<string | null>(null);
 
@@ -254,8 +255,8 @@ function WideLeqPage() {
             </div>
 
             {/* Miniaturas */}
-            <div className="grid grid-cols-4 gap-2">
-              {[imgClaro, imgClaroB, imgPreto, imgAreia].map((img, i) => (
+            <div className="grid grid-cols-5 gap-2">
+              {[imgHero, imgClaro, imgClaroB, imgPreto, imgAreia].map((img, i) => (
                 <button key={i} onClick={() => setHeroImg(img)} className="rounded-xl overflow-hidden border-2 transition-all aspect-square"
                   style={{ borderColor: heroImg === img ? ROSA : '#e5e7eb' }}>
                   <img src={img} alt="" className="w-full h-full object-cover object-top" />
